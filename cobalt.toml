@@ -1,0 +1,14 @@
+round = "Mock 0.1"
+inject_dir = "injects/"
+
+[[box]]
+name = "tempest"
+ip = "10.10.10.1"
+services = [
+    { alias = "Wordpress", type = "http_content", params = { path = "/", content = "abc" } },
+]
+
+[[inject]]
+title = "Create SSH server"
+source = "ssh.pdf"
+services = [{ alias = "CoolSSH", type = "ssh" }]

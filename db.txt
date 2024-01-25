@@ -1,0 +1,27 @@
+table teams {
+    id              int
+    alias           string
+}
+
+table services {
+    id              int
+    alias           string
+    type            string
+}
+
+table uptime_records {
+    id              int
+    service_id      int
+    team_id         int
+
+    time            date
+    up              boolean
+}
+
+table sla_violations {
+    id              int
+    service_id      int
+    team_id         int
+
+    time            date
+}
