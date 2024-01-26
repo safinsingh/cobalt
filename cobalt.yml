@@ -9,8 +9,9 @@ boxes:
     services:
       Wordpress:
         type: http
-        path: /
-        method: POST
+        pages:
+          - path: /
+            method: POST
 
       Magento:
         type: http_content
