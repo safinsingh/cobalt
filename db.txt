@@ -1,27 +1,30 @@
-table teams {
-    id              int
-    alias           string
+table team_snapshots {
+    alias               string
+    points              int
+    time                datetime
 }
 
 table services {
-    id              int
-    alias           string
-    type            string
+    team                string
+    service             string
+    consecutive_downs   uint
+
+    unique (team, service)
 }
 
-table uptime_records {
-    id              int
-    service_id      int
-    team_id         int
+table uptime {
+    team                string
+    service             string
+    up                  boolean
+    error               string?
 
-    time            date
-    up              boolean
+    unique (team, service)
 }
 
 table sla_violations {
-    id              int
-    service_id      int
-    team_id         int
+    team                string
+    service             string
+    time                datetime
 
-    time            date
+    unique (team, service)
 }

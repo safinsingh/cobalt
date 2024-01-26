@@ -1,34 +1,51 @@
 round: Mock 0.1
 inject_dir: injects/
+interval: 120
 
 boxes:
-  - name: tempest
+  tempest:
     ip: 1
 
     services:
-      - alias: Wordpress
-        type: http_content
+      Wordpress:
+        type: http
         path: /
-        content: meow
+        method: POST
 
-      - alias: OpenSSH
+      Magento:
+        type: http_content
+        pages:
+          - path: /
+            content: meow
+
+      OpenSSH:
         type: ssh
+        login: unix
+        user: safin
+
+    credentials:
+      safin: password
 
 injects:
   - title: Create SSH server
     source: ssh.pdf
+    offset: 00:30:00
     type: service
+
+    box: tempest
     services:
-      - alias: CoolSSH
+      CoolSSH:
         type: ssh
+        login: unix
+        user: safin
 
   - title: Respond to IT
     source: it.pdf
+    offset: 00:15:00
     type: response
 
-subnets:
-  - 10.10.11.x
-  - 10.10.12.x
-  - 10.10.13.x
-  - 10.10.14.x
-  - 10.10.15.x
+teams:
+  Cobalt: 10.10.11.x
+  Flashpoint: 10.10.12.x
+  Tempest: 10.10.13.x
+  Triton: 10.10.14.x
