@@ -1,12 +1,13 @@
 use crate::checks::Check;
 use crate::config::check_types::Http;
+use crate::config::Vm;
 use async_trait::async_trait;
 use std::net::Ipv4Addr;
 use url::Url;
 
 #[async_trait]
 impl Check for Http {
-	async fn score(&self, ip: Ipv4Addr) -> anyhow::Result<()> {
+	async fn score(&self, ip: Ipv4Addr, _: &Vm) -> anyhow::Result<()> {
 		for page in &self.pages {
 			let url_raw = format!("http://{}", ip);
 			let client = reqwest::Client::new();
@@ -22,7 +23,12 @@ impl Check for Http {
 				req = req.body(body.to_owned());
 			}
 
-			let _ = req.send().await?;
+			let res = req.send().await?.text().await?;
+			if let Some(contains) = &page.contains {
+				if !res.contains(contains) {
+					bail!("") //fixthis
+				}
+			}
 		}
 
 		Ok(())
