@@ -10,6 +10,8 @@ use std::path::PathBuf;
 const DEFAULT_INTERVAL: u32 = 120;
 // check jitter min/max (default: 10sec)
 const DEFAULT_JITTER: u32 = 10;
+// most consecutive downs before SLA is triggered
+const DEFAULT_MAX_CONSECUTIVE_DOWNS: u32 = 5;
 
 pub mod check_types {
 	use serde::Deserialize;
@@ -60,7 +62,6 @@ pub mod check_types {
 #[enum_dispatch]
 pub enum Service {
 	Http(check_types::Http),
-	HttpContent(check_types::HttpContent),
 	Ssh(check_types::Ssh),
 }
 
@@ -91,6 +92,17 @@ pub struct Inject {
 	inner: InjectType,
 }
 
+fn default_max_consecutive_downs() -> u32 {
+	DEFAULT_MAX_CONSECUTIVE_DOWNS
+}
+
+#[derive(Deserialize, Debug, Default)]
+pub struct Slas {
+	pub enable: bool,
+	#[serde(default = "default_max_consecutive_downs")]
+	pub max_consecutive_downs: u32,
+}
+
 fn default_interval() -> u32 {
 	DEFAULT_INTERVAL
 }
@@ -106,6 +118,8 @@ pub struct Config {
 	pub interval: u32,
 	#[serde(default = "default_jitter")]
 	pub jitter: u32,
+	#[serde(default)]
+	pub slas: Slas,
 	// more intuitive naming
 	#[serde(rename = "boxes")]
 	pub vms: HashMap<String, Vm>,

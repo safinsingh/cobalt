@@ -2,6 +2,10 @@ round: Mock 0.1
 inject_dir: injects/
 interval: 120
 
+slas:
+  enable: true
+  max_consecutive_downs: 5
+
 boxes:
   tempest:
     ip: 1

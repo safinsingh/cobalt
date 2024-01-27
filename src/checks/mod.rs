@@ -1,8 +1,6 @@
 mod http;
-mod http_content;
 mod ssh;
 
-use crate::config::Service;
 use async_trait::async_trait;
 use enum_dispatch::enum_dispatch;
 use std::net::Ipv4Addr;

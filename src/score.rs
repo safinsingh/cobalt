@@ -1,6 +1,5 @@
-use std::{net::Ipv4Addr, str::FromStr};
-
 use crate::{checks::Check, shuffle::ShuffleIterExt};
+use std::{net::Ipv4Addr, str::FromStr};
 
 impl crate::Config {
 	async fn score(&self) -> anyhow::Result<()> {
