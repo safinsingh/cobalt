@@ -1,15 +1,26 @@
-table team_snapshots {
-    alias               string
-    points              int
-    time                datetime
+table teams {
+	id					int
+	alias				string
+
+	unique (alias)
 }
 
 table services {
-    team                string
-    service             string
-    consecutive_downs   uint
+	id					int
+	team_id				int (foreign->teams.id)
 
-    unique (team, service)
+	alias				string
+	consecutive_downs	uint
+
+	unique (team_id, alias)
+}
+
+table team_snapshots {
+	id					int
+	team_id				int (foreign->teams.id)
+
+    points				int
+	time                datetime
 }
 
 table uptime {

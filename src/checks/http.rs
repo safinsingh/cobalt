@@ -1,6 +1,7 @@
 use crate::checks::Check;
 use crate::config::check_types::Http;
 use crate::config::Vm;
+use crate::errors::check_bail;
 use async_trait::async_trait;
 use std::net::Ipv4Addr;
 use url::Url;
@@ -26,7 +27,10 @@ impl Check for Http {
 			let res = req.send().await?.text().await?;
 			if let Some(contains) = &page.contains {
 				if !res.contains(contains) {
-					bail!("") //fixthis
+					check_bail!(
+						"Content mismatch",
+						format!("Content mismatch: expected '{}', got '{}'", contains, res)
+					);
 				}
 			}
 		}
