@@ -9,7 +9,7 @@ impl crate::Config {
 				for service in vm.services.values().shuffle() {
 					// pre-validated
 					let ip = Ipv4Addr::from_str(&subnet.replace('x', &vm.ip.to_string())).unwrap();
-					let res = service.score(ip).await;
+					let res = service.score(ip, &vm).await;
 				}
 			}
 		}

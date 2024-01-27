@@ -1,3 +1,5 @@
+pub mod check_types;
+
 use crate::checks::Check;
 use anyhow::bail;
 use enum_dispatch::enum_dispatch;
@@ -11,56 +13,12 @@ const DEFAULT_INTERVAL: u32 = 120;
 // check jitter min/max (default: 10sec)
 const DEFAULT_JITTER: u32 = 10;
 
-pub mod check_types {
-	use serde::Deserialize;
-	use serde_with::{serde_as, DisplayFromStr};
-	use std::collections::HashMap;
-
-	#[derive(Deserialize, Debug)]
-	#[serde(tag = "login")]
-	#[serde(rename_all = "snake_case")]
-	pub enum SshLoginType {
-		Unix { user: String },
-		Custom { user: String, password: String },
-		None,
-	}
-
-	#[serde_as]
-	#[derive(Deserialize, Debug)]
-	pub struct HttpInner {
-		#[serde_as(as = "DisplayFromStr")]
-		pub method: reqwest::Method,
-		pub path: String,
-		pub headers: Option<HashMap<String, String>>,
-		pub body: Option<String>,
-	}
-
-	#[derive(Deserialize, Debug)]
-	pub struct Http {
-		#[serde(flatten)]
-		pub pages: Vec<HttpInner>,
-	}
-
-	#[derive(Deserialize, Debug)]
-	pub struct HttpContent {
-		path: String,
-		content: String,
-	}
-
-	#[derive(Deserialize, Debug)]
-	pub struct Ssh {
-		#[serde(flatten)]
-		inner: SshLoginType,
-	}
-}
-
 #[derive(Deserialize, Debug)]
 #[serde(tag = "type")]
 #[serde(rename_all = "snake_case")]
 #[enum_dispatch]
 pub enum Service {
 	Http(check_types::Http),
-	HttpContent(check_types::HttpContent),
 	Ssh(check_types::Ssh),
 }
 
@@ -68,6 +26,7 @@ pub enum Service {
 pub struct Vm {
 	pub ip: u8,
 	pub services: HashMap<String, Service>,
+	pub credentials: HashMap<String, String>,
 }
 
 #[derive(Deserialize, Debug)]

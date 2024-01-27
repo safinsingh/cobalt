@@ -12,12 +12,17 @@ boxes:
         pages:
           - path: /
             method: POST
+            headers:
+              Content-Type: application/json
+            body: '{"hi": "there"}'
 
       Magento:
         type: http_content
         pages:
           - path: /
             content: meow
+            headers:
+              "X-Cool-Header": bleh
 
       OpenSSH:
         type: ssh

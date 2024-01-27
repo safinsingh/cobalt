@@ -1,5 +1,6 @@
 mod checks;
 mod config;
+mod errors;
 mod offset;
 mod score;
 mod shuffle;
