@@ -1,6 +1,5 @@
 use chrono::Duration;
-use serde::de::Visitor;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{de::Visitor, Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 
 // The following has been generated with the help of ChatGPT

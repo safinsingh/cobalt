@@ -16,15 +16,23 @@ impl std::fmt::Display for CheckError {
 	}
 }
 
-impl std::error::Error for CheckError {}
+impl<T: std::error::Error + Send + Sync + 'static> From<T> for CheckError {
+	fn from(value: T) -> Self {
+		Self {
+			short: anyhow::anyhow!("Internal server error"),
+			verbose: value.into(),
+		}
+	}
+}
 
 macro_rules! check_bail {
 	($short:expr, $verbose:expr) => {
-		return Err(crate::errors::CheckError::new(
-			anyhow::anyhow!($short),
-			anyhow::anyhow!($verbose),
-		)
-		.into())
+		return Err(crate::checks::errors::CheckError::new(
+			::anyhow::anyhow!($short),
+			::anyhow::anyhow!($verbose),
+		))
 	};
 }
 pub(crate) use check_bail;
+
+pub type CheckResult = Result<(), CheckError>;
