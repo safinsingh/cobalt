@@ -3,6 +3,7 @@ pub mod check_types;
 use crate::checks::{Check, CheckResult};
 use anyhow::bail;
 use enum_dispatch::enum_dispatch;
+use rand::Rng;
 use serde::Deserialize;
 use std::{collections::HashMap, net::Ipv4Addr, path::PathBuf};
 
@@ -99,14 +100,26 @@ fn default_jitter() -> u32 {
 }
 
 #[derive(Deserialize, Debug)]
+pub struct Timing {
+	#[serde(default = "default_interval")]
+	pub interval: u32,
+	#[serde(default = "default_jitter")]
+	pub jitter: u32,
+}
+
+impl Timing {
+	pub fn jittered_interval(&self) -> chrono::Duration {
+		let offset = rand::thread_rng().gen_range(-1 * self.jitter as i32..self.jitter as i32);
+		chrono::Duration::seconds(self.interval as i64 + offset as i64)
+	}
+}
+
+#[derive(Deserialize, Debug)]
 pub struct Config {
 	pub round: String,
 	pub inject_dir: PathBuf,
-	#[serde(default = "default_interval")]
-	pub interval: u32,
+	pub timing: Timing,
 	pub scoring: Scoring,
-	#[serde(default = "default_jitter")]
-	pub jitter: u32,
 	#[serde(default)]
 	pub slas: Slas,
 	// more intuitive naming

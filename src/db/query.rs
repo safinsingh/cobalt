@@ -1,11 +1,10 @@
-use crate::checks::errors::get_check_result_errors;
-use crate::checks::CheckResult;
-use crate::config::Scoring;
-use crate::db::models::ServiceMap;
+use crate::{
+	checks::{errors::get_check_result_errors, CheckResult},
+	config::Scoring,
+	db::models::ServiceMap,
+};
 use chrono::{DateTime, Utc};
-use sqlx::prelude::FromRow;
-use sqlx::types::Json;
-use sqlx::PgExecutor;
+use sqlx::{prelude::FromRow, types::Json, PgExecutor};
 
 #[derive(FromRow)]
 pub struct ServiceStatus {

@@ -1,6 +1,9 @@
 round: Mock 0.1
 inject_dir: injects/
-interval: 120
+
+timing:
+  interval: 30
+  jitter: 5
 
 scoring:
   service_up: 5
