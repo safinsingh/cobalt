@@ -81,7 +81,7 @@ fn default_sla_points() -> i32 {
 	DEFAULT_SLA_POINTS
 }
 
-#[derive(Deserialize, Debug, Default)]
+#[derive(Deserialize, Debug, Default, Clone, Copy)]
 pub struct Scoring {
 	#[serde(default = "default_service_up_points")]
 	pub service_up: i32,
@@ -104,6 +104,7 @@ pub struct Config {
 	pub inject_dir: PathBuf,
 	#[serde(default = "default_interval")]
 	pub interval: u32,
+	pub scoring: Scoring,
 	#[serde(default = "default_jitter")]
 	pub jitter: u32,
 	#[serde(default)]

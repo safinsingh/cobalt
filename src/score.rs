@@ -1,11 +1,18 @@
-use crate::{checks::Check, db::Db, shuffle::ShuffleIterExt};
+use crate::{
+	checks::Check,
+	db::{models::ServiceGatheredInfo, query},
+	shuffle::ShuffleIterExt,
+};
 use chrono::Utc;
+use sqlx::PgPool;
 use std::collections::HashMap;
 use std::{net::Ipv4Addr, str::FromStr};
 
 impl crate::Config {
-	async fn score(&self, db: &Db) -> anyhow::Result<()> {
+	async fn score(&self, pool: PgPool) -> anyhow::Result<()> {
 		for (team, subnet) in self.teams.iter().shuffle() {
+			let mut txn = pool.begin().await?;
+
 			let mut team_snapshot = HashMap::new();
 			for (vm_alias, vm) in self.vms.iter().shuffle() {
 				let mut vm_snapshot = HashMap::new();
@@ -15,16 +22,32 @@ impl crate::Config {
 					let time = Utc::now();
 					let res = service.score(ip, &vm).await;
 
-					let res = db
-						.record_service(&team, &vm_alias, &service_alias, time, res)
+					query::record_service(&mut *txn, &team, &vm_alias, &service_alias, time, &res)
 						.await?;
-					vm_snapshot.insert(service_alias.as_str(), res.up);
+
+					let incurred_sla = query::check_sla_violation(
+						&mut *txn,
+						&team,
+						&vm_alias,
+						&service_alias,
+						self.slas.max_consecutive_downs,
+					)
+					.await?;
+
+					vm_snapshot.insert(
+						service_alias.as_str(),
+						ServiceGatheredInfo {
+							up: res.is_ok(),
+							incurred_sla,
+						},
+					);
 				}
 				team_snapshot.insert(vm_alias.as_str(), vm_snapshot);
 			}
 
 			let time = Utc::now();
-			db.snapshot_team(&team, team_snapshot, time).await?;
+			query::snapshot_team(&mut *txn, &team, team_snapshot, self.scoring, time).await?;
+			txn.commit().await?;
 		}
 
 		Ok(())

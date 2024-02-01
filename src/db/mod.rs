@@ -1,6 +1,7 @@
-mod models;
-mod query;
+use sqlx::{Pool, Postgres, Transaction};
 
-pub struct Db {
-	conn: sqlx::pool::Pool<sqlx::Postgres>,
-}
+pub mod models;
+pub mod query;
+
+pub type PgPool = Pool<Postgres>;
+pub type PgTransaction<'a> = Transaction<'a, Postgres>;

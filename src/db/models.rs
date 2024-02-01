@@ -14,7 +14,13 @@ pub struct ServiceCheck {
 	pub time: DateTime<Utc>,
 }
 
-pub type ServiceMap<'s> = HashMap<&'s str, HashMap<&'s str, bool>>;
+#[derive(Serialize, Deserialize)]
+pub struct ServiceGatheredInfo {
+	pub up: bool,
+	pub incurred_sla: bool,
+}
+
+pub type ServiceMap<'s> = HashMap<&'s str, HashMap<&'s str, ServiceGatheredInfo>>;
 
 #[derive(Serialize, Deserialize, FromRow)]
 pub struct TeamSnapshot<'s> {

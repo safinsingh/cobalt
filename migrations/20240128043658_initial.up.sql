@@ -1,7 +1,7 @@
 CREATE TABLE service_checks (
     id              SERIAL PRIMARY KEY,
     team            TEXT NOT NULL,
-    vm              TEXT NOT NULL, 
+    vm              TEXT NOT NULL,
     service         TEXT NOT NULL,
 
     up              BOOLEAN NOT NULL,
