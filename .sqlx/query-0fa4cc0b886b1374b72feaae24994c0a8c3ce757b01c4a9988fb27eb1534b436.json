@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n\t\tINSERT INTO team_snapshots(team, points, services, time)\n\t\tVALUES ($1, $2, $3, $4);\n\t",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Int4",
+        "Jsonb",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "0fa4cc0b886b1374b72feaae24994c0a8c3ce757b01c4a9988fb27eb1534b436"
+}

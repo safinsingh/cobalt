@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n\t\t\tINSERT INTO sla_violations(team, vm, service, time)\n\t\t\tVALUES ($1, $2, $3, $4);\n\t\t",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "427827a3d1c8e4e9afa2ffa74dc262bb234c28fa01487de52f7b7cff3694731d"
+}

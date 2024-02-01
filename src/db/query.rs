@@ -19,19 +19,50 @@ pub async fn check_sla_violation(
 	service: &str,
 	limit: u32,
 ) -> anyhow::Result<bool> {
-	let query_string = format!(
-		"SELECT * FROM service_checks WHERE team = $1 AND vm = $2 AND service = $3 ORDER BY time DESC LIMIT {}",
-		limit
-	);
+	let count: i64 = sqlx::query_scalar(
+		r#"
+			WITH LatestUpTrue AS (
+				SELECT MAX(time) as max_time
+				FROM service_checks
+				WHERE team = $1 AND vm = $2 AND service = $3 AND up = true
+			)
+			SELECT COUNT(*)
+			FROM service_checks
+			WHERE
+				team = $1 AND vm = $2 AND service = $3 AND 
+				time > (SELECT COALESCE(max_time, '1970-01-01') FROM LatestUpTrue)
+	"#,
+	)
+	.bind(team)
+	.bind(vm)
+	.bind(service)
+	.fetch_one(conn)
+	.await?;
 
-	let records = sqlx::query_as::<_, ServiceStatus>(&query_string)
-		.bind(team)
-		.bind(vm)
-		.bind(service)
-		.fetch_all(conn)
-		.await?;
+	Ok(count > 0 && count % (limit as i64) == 0)
+}
 
-	Ok(records.iter().all(|s| !s.up))
+pub async fn report_sla_violation(
+	conn: impl PgExecutor<'_>,
+	team: &str,
+	vm: &str,
+	service: &str,
+	time: DateTime<Utc>,
+) -> anyhow::Result<()> {
+	sqlx::query!(
+		r#"
+			INSERT INTO sla_violations(team, vm, service, time)
+			VALUES ($1, $2, $3, $4);
+		"#,
+		team,
+		vm,
+		service,
+		time
+	)
+	.execute(conn)
+	.await?;
+
+	Ok(())
 }
 
 pub async fn record_service(
@@ -41,15 +72,13 @@ pub async fn record_service(
 	service: &str,
 	time: DateTime<Utc>,
 	status: &CheckResult,
-) -> anyhow::Result<ServiceStatus> {
+) -> anyhow::Result<()> {
 	let (short, long) = get_check_result_errors(&status);
 
-	let up = sqlx::query_as!(
-		ServiceStatus,
+	sqlx::query!(
 		r#"
 			INSERT INTO service_checks(team, vm, service, up, short_error, long_error, time)
-			VALUES ($1, $2, $3, $4, $5, $6, $7)
-			RETURNING up;
+			VALUES ($1, $2, $3, $4, $5, $6, $7);
 		"#,
 		team,
 		vm,
@@ -59,10 +88,10 @@ pub async fn record_service(
 		long,
 		time
 	)
-	.fetch_one(conn)
+	.execute(conn)
 	.await?;
 
-	Ok(up)
+	Ok(())
 }
 
 pub async fn snapshot_team<'s>(

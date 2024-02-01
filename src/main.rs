@@ -17,7 +17,7 @@ async fn main() -> anyhow::Result<()> {
 	let cfg = Config::from_str(&raw)?;
 	let pool = db::establish_pg_conn().await?;
 
-	cfg.score(pool).await?;
+	cfg.score(&pool).await?;
 
 	Ok(())
 }
