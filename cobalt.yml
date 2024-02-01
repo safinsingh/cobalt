@@ -2,6 +2,12 @@ round: Mock 0.1
 inject_dir: injects/
 interval: 120
 
+scoring:
+  service_up: 5
+  service_down: 0
+  # should be a negative value
+  sla: -10
+
 slas:
   enable: true
   max_consecutive_downs: 5

@@ -1,59 +1,51 @@
+use crate::checks::errors::get_check_result_errors;
 use crate::checks::CheckResult;
-use std::borrow::Cow;
+use crate::db::models::ServiceMap;
+use chrono::{DateTime, Utc};
+
+pub struct UpsertResult {
+	pub up: bool,
+}
 
 impl super::Db {
-	pub async fn upsert_service(
+	pub async fn record_service(
 		&self,
 		team: &str,
+		vm: &str,
 		service: &str,
+		time: DateTime<Utc>,
 		status: CheckResult,
-	) -> anyhow::Result<()> {
-		let short_err: Cow<str> = status
-			.as_ref()
-			.map_or_else(|e| e.short.to_string().into(), |_| "".into());
-		let verbose_err: Cow<str> = status
-			.as_ref()
-			.map_or_else(|e| e.verbose.to_string().into(), |_| "".into());
+	) -> anyhow::Result<UpsertResult> {
+		let (short, long) = get_check_result_errors(&status);
 
-		sqlx::query!(
+		let up = sqlx::query_as!(
+			UpsertResult,
 			r#"
-WITH team_id_subquery AS (
-	SELECT id FROM teams WHERE alias = $1
-), last_status_subquery AS (
-	SELECT up, consecutive_downs FROM services
-	WHERE team_id = (SELECT id FROM team_id_subquery) AND alias = $2
-)
-INSERT INTO services (team_id, alias, consecutive_downs, up, short_error, verbose_error)
-SELECT
-	(SELECT id FROM team_id_subquery),
-	$2,
-	COALESCE(
-		CASE
-			WHEN $3 = FALSE THEN (SELECT consecutive_downs FROM last_status_subquery) + 1
-			ELSE 0
-		END,
-		0 -- Handle service not being inserted yet
-	),
-	$3,
-	$4,
-	$5
-FROM team_id_subquery
-ON CONFLICT (team_id, alias) DO UPDATE
-SET
-	consecutive_downs = EXCLUDED.consecutive_downs,
-	up = EXCLUDED.up,
-	short_error = EXCLUDED.short_error,
-	verbose_error = EXCLUDED.verbose_error;
-"#,
+			INSERT INTO service_checks(team, vm, service, up, short_error, long_error, time)
+			VALUES ($1, $2, $3, $4, $5, $6, $7)
+			RETURNING up;
+		"#,
 			team,
+			vm,
 			service,
 			status.is_ok(),
-			&short_err,
-			&verbose_err
+			short,
+			long,
+			time
 		)
-		.execute(&self.conn)
-		.await
-		.map(|_| ())?;
+		.fetch_one(&self.conn)
+		.await?;
+
+		Ok(up)
+	}
+
+	pub async fn snapshot_team<'s>(
+		&'s self,
+		team: &str,
+		services: ServiceMap<'s>,
+		time: DateTime<Utc>,
+	) -> anyhow::Result<()> {
+		let mut point_differential = services.iter().fold(0, ||)
 
 		Ok(())
 	}

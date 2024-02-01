@@ -1,34 +1,19 @@
-table teams {
-	id					int
-	alias				string
-	points				int
-
-	unique (alias)
-}
-
-table services {
-	id					int
-	team_id				int (foreign->teams.id)
-	alias				string
-
-	consecutive_downs	uint
+table service_checks {
+	team				string
+	service				string
 	up					boolean
 
 	short_error       	string?
-	verbose_error       string?
-
-	unique (team_id, alias)
+	long_error			string?
 }
 
 table team_snapshots {
-	id					int
-	team_id				int (foreign->teams.id)
-
+	team				string
     points				int
 	services			jsonb ({ [service_id: int]: { service_alias: string, up: boolean } })
 	time                datetime
 
-    unique (id)
+	unique (id)
 }
 
 table sla_violations {

@@ -13,6 +13,14 @@ const DEFAULT_JITTER: u32 = 10;
 // most consecutive downs before SLA is triggered
 const DEFAULT_MAX_CONSECUTIVE_DOWNS: u32 = 5;
 
+/// SCORING ///
+// service up point differential (default: +5)
+const DEFAULT_SERVICE_UP_POINTS: i32 = 5;
+// service down point differential (default: +0)
+const DEFAULT_SERVICE_DOWN_POINTS: i32 = 0;
+// sla point differential (default: -15)
+const DEFAULT_SLA_POINTS: i32 = -15;
+
 #[derive(Deserialize, Debug)]
 #[serde(tag = "type")]
 #[serde(rename_all = "snake_case")]
@@ -59,6 +67,28 @@ pub struct Slas {
 	pub enable: bool,
 	#[serde(default = "default_max_consecutive_downs")]
 	pub max_consecutive_downs: u32,
+}
+
+fn default_service_up_points() -> i32 {
+	DEFAULT_SERVICE_UP_POINTS
+}
+
+fn default_service_down_points() -> i32 {
+	DEFAULT_SERVICE_DOWN_POINTS
+}
+
+fn default_sla_points() -> i32 {
+	DEFAULT_SLA_POINTS
+}
+
+#[derive(Deserialize, Debug, Default)]
+pub struct Scoring {
+	#[serde(default = "default_service_up_points")]
+	pub service_up: i32,
+	#[serde(default = "default_service_down_points")]
+	pub service_down: i32,
+	#[serde(default = "default_sla_points")]
+	pub sla: i32,
 }
 
 fn default_interval() -> u32 {
