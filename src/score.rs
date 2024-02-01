@@ -9,7 +9,7 @@ use std::collections::HashMap;
 use std::{net::Ipv4Addr, str::FromStr};
 
 impl crate::Config {
-	async fn score(&self, pool: PgPool) -> anyhow::Result<()> {
+	pub async fn score(&self, pool: PgPool) -> anyhow::Result<()> {
 		for (team, subnet) in self.teams.iter().shuffle() {
 			let mut txn = pool.begin().await?;
 

@@ -27,7 +27,7 @@ boxes:
             body: '{"hi": "there"}'
 
       Magento:
-        type: http_content
+        type: http
         pages:
           - path: /
             content: meow
