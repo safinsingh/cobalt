@@ -32,9 +32,8 @@ impl crate::Config {
 					)
 					.await?;
 					if incurred_sla {
-
-						dbg!(query::report_sla_violation(pool, &team, &vm_alias, &service_alias, time)
-							.await?);
+						query::report_sla_violation(pool, &team, &vm_alias, &service_alias, time)
+							.await?;
 					}
 
 					vm_snapshot.insert(
