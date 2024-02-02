@@ -1,6 +1,11 @@
 round: Mock 0.1
 inject_dir: injects/
 
+web:
+  admin_username: safin
+  admin_password: password
+  port: 8080
+
 timing:
   interval: 30
   jitter: 5

@@ -4,8 +4,10 @@ mod db;
 mod offset;
 mod score;
 mod shuffle;
+mod web;
 
 use dotenvy::dotenv;
+use tokio::task;
 
 use crate::config::Config;
 use std::fs;
@@ -15,14 +17,16 @@ use std::sync::Arc;
 async fn main() -> anyhow::Result<()> {
 	dotenv()?;
 	let raw = fs::read_to_string("cobalt.yml")?;
-	let cfg = Config::from_str(&raw)?;
+	let cfg = Arc::new(Config::from_str(&raw)?);
 	let pool = db::establish_pg_conn().await?;
+	let is_scoring = false;
 
-	let scoring = Arc::new(false);
-	while *scoring {
-		score::run(&cfg, &pool).await?;
-		tokio::time::sleep(cfg.timing.jittered_interval().to_std()?);
-	}
-
+	web::run(cfg.web.port, pool.clone()).await?;
 	Ok(())
+	// loop {
+	// 	if is_scoring {
+	// 		score::run(&cfg, pool.clone()).await.unwrap();
+	// 		tokio::time::sleep(cfg.timing.jittered_interval()).await;
+	// 	}
+	// }
 }

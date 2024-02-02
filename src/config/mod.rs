@@ -22,6 +22,10 @@ const DEFAULT_SERVICE_DOWN_POINTS: i32 = 0;
 // sla point differential (default: -15)
 const DEFAULT_SLA_POINTS: i32 = -15;
 
+/// WEB ///
+// default web interface port
+const DEFAULT_WEB_PORT: u16 = 8080;
+
 #[derive(Deserialize, Debug)]
 #[serde(tag = "type")]
 #[serde(rename_all = "snake_case")]
@@ -108,10 +112,22 @@ pub struct Timing {
 }
 
 impl Timing {
-	pub fn jittered_interval(&self) -> chrono::Duration {
+	pub fn jittered_interval(&self) -> std::time::Duration {
 		let offset = rand::thread_rng().gen_range(-1 * self.jitter as i32..self.jitter as i32);
-		chrono::Duration::seconds(self.interval as i64 + offset as i64)
+		std::time::Duration::from_secs(self.interval as u64 + offset as u64)
 	}
+}
+
+fn default_web_port() -> u16 {
+	DEFAULT_WEB_PORT
+}
+
+#[derive(Deserialize, Debug)]
+pub struct Web {
+	pub admin_username: String,
+	pub admin_password: String,
+	#[serde(default = "default_web_port")]
+	pub port: u16,
 }
 
 #[derive(Deserialize, Debug)]
@@ -120,6 +136,7 @@ pub struct Config {
 	pub inject_dir: PathBuf,
 	pub timing: Timing,
 	pub scoring: Scoring,
+	pub web: Web,
 	#[serde(default)]
 	pub slas: Slas,
 	// more intuitive naming

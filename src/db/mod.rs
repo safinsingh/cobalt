@@ -4,6 +4,7 @@ use anyhow::Context;
 use sqlx::{pool::PoolOptions, PgPool};
 
 pub mod models;
+pub mod mutation;
 pub mod query;
 
 const DB_URL_ENV_VAR: &str = "DATABASE_URL";
