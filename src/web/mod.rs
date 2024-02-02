@@ -1,20 +1,22 @@
-use crate::config::Config;
-use crate::db;
-use crate::db::models::ServiceGatheredInfo;
-use crate::db::query::LatestTeamSnapshot;
-use crate::db::query::OwnedServiceMap;
+use crate::{
+	config::Config,
+	db,
+	db::{
+		models::ServiceGatheredInfo,
+		query::{LatestTeamSnapshot, OwnedServiceMap},
+	},
+};
 use askama_axum::Template;
-use axum::extract::State;
-use axum::http::StatusCode;
-use axum::response::Html;
-use axum::response::IntoResponse;
-use axum::response::Response;
-use axum::Json;
-use axum::{routing::get, Router};
+use axum::{
+	extract::State,
+	http::StatusCode,
+	response::{Html, IntoResponse, Response},
+	routing::get,
+	Json, Router,
+};
 use chrono::{DateTime, Utc};
 use sqlx::PgPool;
-use std::collections::HashMap;
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 use tokio::net::TcpListener;
 
 #[derive(Clone)]

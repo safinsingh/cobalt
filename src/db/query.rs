@@ -1,9 +1,7 @@
 use crate::db::models::ServiceGatheredInfo;
-use chrono::DateTime;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::types::Json;
-use sqlx::{prelude::FromRow, PgExecutor};
+use sqlx::{prelude::FromRow, types::Json, PgExecutor};
 use std::collections::HashMap;
 
 #[derive(FromRow)]

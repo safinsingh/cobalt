@@ -10,8 +10,7 @@ use dotenvy::dotenv;
 use tokio::task;
 
 use crate::config::Config;
-use std::fs;
-use std::sync::Arc;
+use std::{fs, sync::Arc};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
