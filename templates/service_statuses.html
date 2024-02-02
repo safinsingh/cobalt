@@ -1,0 +1,36 @@
+{% block content %}
+<h1>Generated At: {{ latest_time }}</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Team</th>
+            {% for vm_srv in service_list %}
+                <th>{{ vm_srv }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for team in status_table.keys() %}
+            <tr>
+                <td>{{ team }}</td>
+                {% for vm_srv in service_list %}
+                    {% set status = status_table[team][vm_srv] %}
+
+                    {% if status.incurred_sla %}
+                    <td style="background-color: yellow;">
+                    {% else %}
+                    <td>
+                    {% endif %}
+                        {% if status.up %}
+                            <img src="green_check.png" alt="Up">
+                        {% else %}
+                            <img src="red_x.png" alt="Down">
+                        {% endif %}
+                    </td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

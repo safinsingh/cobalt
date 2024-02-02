@@ -21,7 +21,7 @@ async fn main() -> anyhow::Result<()> {
 	let pool = db::establish_pg_conn().await?;
 	let is_scoring = false;
 
-	web::run(cfg.web.port, pool.clone()).await?;
+	web::run(cfg.clone(), pool.clone()).await?;
 	Ok(())
 	// loop {
 	// 	if is_scoring {

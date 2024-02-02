@@ -41,18 +41,20 @@ pub async fn check_sla_violation(
 	Ok(count > 0 && count % (limit as i64) == 0)
 }
 
+pub type OwnedServiceMap = HashMap<String, HashMap<String, ServiceGatheredInfo>>;
+
 #[derive(Serialize, Deserialize, FromRow)]
-pub struct LatestServiceMap {
+pub struct LatestTeamSnapshot {
 	pub team: String,
 	// { [vm: string]: { [service: string]: boolean } }
-	pub services: Json<HashMap<String, HashMap<String, ServiceGatheredInfo>>>,
+	pub services: Json<OwnedServiceMap>,
 	pub time: DateTime<Utc>,
 }
 
 pub async fn latest_service_statuses(
 	conn: impl PgExecutor<'_>,
-) -> anyhow::Result<Vec<LatestServiceMap>> {
-	let teams = sqlx::query_as::<_, LatestServiceMap>(
+) -> anyhow::Result<Vec<LatestTeamSnapshot>> {
+	let teams = sqlx::query_as::<_, LatestTeamSnapshot>(
 		r#"
 		SELECT DISTINCT ON (team) team, services, time
 		FROM team_snapshots
