@@ -21,7 +21,7 @@ slas:
   max_consecutive_downs: 5
 
 boxes:
-  tempest:
+  earth:
     ip: 1
 
     services:

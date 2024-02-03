@@ -1,0 +1,45 @@
+:root {
+	font-family: Inter, sans-serif;
+	font-feature-settings: "liga" 1, "calt" 1; /* fix for Chrome */
+}
+
+@supports (font-variation-settings: normal) {
+	:root {
+		font-family: InterVariable, sans-serif;
+	}
+}
+
+#content {
+	padding: 20px;
+	margin: 0 auto;
+	display: grid;
+	gap: 12px;
+	max-width: 800px;
+}
+
+i {
+	font-style: italic;
+}
+
+h1 {
+	font-weight: bold;
+	font-size: 24px;
+}
+
+td,
+th {
+	padding: 10px;
+	text-align: center;
+}
+
+tr:first-child {
+	text-align: right;
+}
+
+.serviceUp {
+	background-color: #b5f5b9;
+}
+
+.serviceDown {
+	background-color: #f5b5b5;
+}

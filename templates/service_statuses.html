@@ -1,32 +1,29 @@
+{% extends "base.html" %}
+
 {% block content %}
-<h1>Generated At: {{ latest_time }}</h1>
+<h1>Service Statuses</h1>
+<i>Generated At: {{ latest_time }}</i>
 
 <table>
     <thead>
         <tr>
-            <th>Team</th>
-            {% for vm_srv in service_list %}
+            <th></th>
+            {% for vm_srv in vm_service_names %}
                 <th>{{ vm_srv }}</th>
             {% endfor %}
         </tr>
     </thead>
     <tbody>
-        {% for team in status_table.keys() %}
+        {% for (team, service) in status_table %}
             <tr>
                 <td>{{ team }}</td>
-                {% for vm_srv in service_list %}
-                    {% set status = status_table[team][vm_srv] %}
-
-                    {% if status.incurred_sla %}
-                    <td style="background-color: yellow;">
+                {% for (_, info) in service %}
+                    {% if info.up %}
+                    <td class="serviceUp">
                     {% else %}
-                    <td>
+                    <td class="serviceDown">
                     {% endif %}
-                        {% if status.up %}
-                            <img src="green_check.png" alt="Up">
-                        {% else %}
-                            <img src="red_x.png" alt="Down">
-                        {% endif %}
+                        {% if info.up %} ✔️ {% else %} ❌ {% endif %}
                     </td>
                 {% endfor %}
             </tr>
