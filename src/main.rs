@@ -6,17 +6,21 @@ mod score;
 mod shuffle;
 mod web;
 
-use dotenvy::dotenv;
-use tokio::task;
-
 use crate::config::Config;
+use dotenvy::dotenv;
+use log::debug;
 use std::{fs, sync::Arc};
+use tokio::task;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+	env_logger::init();
 	dotenv()?;
+
 	let raw = fs::read_to_string("cobalt.yml")?;
 	let cfg = Arc::new(Config::from_str(&raw)?);
+	debug!("Parsed configuration: {:#?}", cfg);
+
 	let pool = db::establish_pg_conn().await?;
 	let is_scoring = false;
 

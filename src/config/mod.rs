@@ -11,6 +11,9 @@ use std::{collections::HashMap, net::Ipv4Addr, path::PathBuf};
 const DEFAULT_INTERVAL: u32 = 120;
 // check jitter min/max (default: 10sec)
 const DEFAULT_JITTER: u32 = 10;
+// check timeout (default: 30sec)
+const DEFAULT_TIMEOUT: u32 = 30;
+
 // most consecutive downs before SLA is triggered
 const DEFAULT_MAX_CONSECUTIVE_DOWNS: u32 = 5;
 
@@ -102,6 +105,9 @@ fn default_interval() -> u32 {
 fn default_jitter() -> u32 {
 	DEFAULT_JITTER
 }
+fn default_timeout() -> u32 {
+	DEFAULT_TIMEOUT
+}
 
 #[derive(Deserialize, Debug)]
 pub struct Timing {
@@ -109,6 +115,8 @@ pub struct Timing {
 	pub interval: u32,
 	#[serde(default = "default_jitter")]
 	pub jitter: u32,
+	#[serde(default = "default_timeout")]
+	pub timeout: u32,
 }
 
 impl Timing {

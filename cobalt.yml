@@ -9,6 +9,7 @@ web:
 timing:
   interval: 30
   jitter: 5
+  timeout: 30
 
 scoring:
   service_up: 5

@@ -29,6 +29,13 @@ impl<T: std::error::Error + Send + Sync + 'static> From<T> for CheckError {
 	}
 }
 
+macro_rules! check_error {
+	($short:expr, $long:expr) => {
+		crate::checks::errors::CheckError::new(::anyhow::anyhow!($short), ::anyhow::anyhow!($long))
+	};
+}
+pub(crate) use check_error;
+
 macro_rules! check_bail {
 	($short:expr, $long:expr) => {
 		return Err(crate::checks::errors::CheckError::new(
