@@ -21,7 +21,7 @@ slas:
   enable: true
   max_consecutive_downs: 5
 
-boxes:
+vms:
   earth:
     ip: 1
 
@@ -57,7 +57,7 @@ injects:
     offset: 00:30:00
     type: service
 
-    box: tempest
+    vm: earth
     services:
       CoolSSH:
         type: ssh

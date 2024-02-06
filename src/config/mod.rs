@@ -1,7 +1,7 @@
 pub mod check_types;
 
 use crate::checks::{Check, CheckResult};
-use anyhow::bail;
+use anyhow::{bail, ensure};
 use enum_dispatch::enum_dispatch;
 use rand::Rng;
 use serde::Deserialize;
@@ -50,7 +50,6 @@ pub struct Vm {
 #[serde(rename_all = "snake_case")]
 enum InjectType {
 	Service {
-		#[serde(rename = "box")]
 		vm: String,
 		services: HashMap<String, Service>,
 	},
@@ -148,7 +147,6 @@ pub struct Config {
 	#[serde(default)]
 	pub slas: Slas,
 	// more intuitive naming
-	#[serde(rename = "boxes")]
 	pub vms: HashMap<String, Vm>,
 	pub injects: Vec<Inject>,
 	pub teams: HashMap<String, String>,
@@ -162,7 +160,8 @@ impl Config {
 	}
 
 	fn validate(&self) -> anyhow::Result<()> {
-		self.validate_teams()
+		self.validate_teams()?;
+		self.validate_injects()
 	}
 
 	fn validate_teams(&self) -> anyhow::Result<()> {
@@ -172,6 +171,26 @@ impl Config {
 				bail!("Invalid subnet for team '{}': {}", alias, subnet);
 			}
 		}
+		Ok(())
+	}
+
+	fn validate_injects(&self) -> anyhow::Result<()> {
+		for inject in &self.injects {
+			if let InjectType::Service { vm, services } = &inject.inner {
+				if let Some(existing_vm) = self.vms.get(vm) {
+					for (service_alias, _) in services {
+						ensure!(
+							!existing_vm.services.contains_key(service_alias),
+							"inject '{}' creates service '{}' on vm '{}', but a service with that name already exists",
+							inject.title, service_alias, vm
+						);
+					}
+				} else {
+					bail!("inject '{}' refers to unknown vm '{}'", inject.title, vm);
+				}
+			}
+		}
+
 		Ok(())
 	}
 }

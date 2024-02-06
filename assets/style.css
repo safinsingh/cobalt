@@ -3,6 +3,10 @@
 	font-feature-settings: "liga" 1, "calt" 1; /* fix for Chrome */
 }
 
+* {
+	box-sizing: border-box;
+}
+
 @supports (font-variation-settings: normal) {
 	:root {
 		font-family: InterVariable, sans-serif;
@@ -28,6 +32,7 @@ i {
 h1 {
 	font-weight: bold;
 	font-size: 48px;
+	padding-top: 16px;
 }
 
 h2 {
@@ -70,4 +75,36 @@ h1 {
 table {
 	width: 100%;
 	border: 1px solid black;
+}
+
+input {
+	border: 1px solid black;
+	font-size: 14px;
+	color: black;
+	border-radius: 0px;
+	padding: 6px;
+	font-family: inherit;
+	display: block;
+	margin-bottom: 12px;
+	width: 250px;
+}
+
+input:focus-visible,
+input:focus,
+input:active {
+	border: 1px solid black;
+	outline: none;
+	border-radius: 0px;
+}
+
+input[type="submit"] {
+	background-color: black;
+	color: white;
+	transition: all 0.3s;
+}
+
+input[type="submit"]:hover {
+	background-color: white;
+	color: black;
+	cursor: pointer;
 }

@@ -7,7 +7,6 @@ use chrono::{DateTime, Local};
 use itertools::Itertools;
 
 type FlattenedServices = Vec<(String, Vec<(String, ServiceGatheredInfo)>)>;
-
 struct TeamInfo {
 	team: String,
 	services_up: usize,

@@ -1,4 +1,5 @@
-mod routes;
+mod login;
+mod status;
 
 use crate::config::Config;
 use axum::{
@@ -44,7 +45,8 @@ where
 pub async fn run(config: Arc<Config>, pool: PgPool) -> anyhow::Result<()> {
 	let listener = TcpListener::bind(("0.0.0.0", config.web.port)).await?;
 	let app = Router::new()
-		.route("/status", get(routes::status))
+		.route("/status", get(status::status))
+		.route("/login", get(login::login))
 		.nest_service("/assets", ServeDir::new("assets"))
 		.with_state(WebState {
 			pool,
