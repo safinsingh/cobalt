@@ -14,7 +14,7 @@ pub struct ServiceCheck {
 	pub time: DateTime<Utc>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, Copy)]
 pub struct ServiceGatheredInfo {
 	pub up: bool,
 	pub incurred_sla: bool,
