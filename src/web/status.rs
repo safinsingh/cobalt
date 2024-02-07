@@ -17,6 +17,7 @@ struct TeamInfo {
 #[derive(Template)]
 #[template(path = "status.html")]
 struct ServiceStatusTpl {
+	mock_title: String,
 	// service names altered to be <vm>-<service>
 	status_table: FlattenedServices,
 	vm_service_names: Vec<String>,
@@ -83,6 +84,7 @@ fn extract_team_table(snapshots: &Vec<LatestTeamSnapshot>) -> Vec<TeamInfo> {
 		.collect()
 }
 
+#[axum_macros::debug_handler]
 pub async fn status(State(ctxt): State<WebState>) -> WebResult<impl IntoResponse> {
 	let teams = db::query::latest_service_statuses(&ctxt.pool).await?;
 	let latest_time =
@@ -94,6 +96,7 @@ pub async fn status(State(ctxt): State<WebState>) -> WebResult<impl IntoResponse
 	let team_progressions = db::query::team_progressions(&ctxt.pool).await?;
 
 	Ok(ServiceStatusTpl {
+		mock_title: ctxt.title(),
 		status_table,
 		vm_service_names,
 		latest_time,

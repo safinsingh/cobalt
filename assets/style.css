@@ -108,3 +108,26 @@ input[type="submit"]:hover {
 	color: black;
 	cursor: pointer;
 }
+
+#navbar {
+	position: sticky;
+	top: 20px;
+	background-color: white;
+	display: flex;
+	flex-direction: row;
+	gap: 12px;
+	border: 1px solid black;
+	padding: 10px;
+}
+
+#navbar > span {
+	font-weight: bold;
+	flex: 1;
+}
+
+a,
+a:hover,
+a:active,
+a:visited {
+	color: blue;
+}

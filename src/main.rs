@@ -19,7 +19,7 @@ async fn main() -> anyhow::Result<()> {
 	dotenv()?;
 
 	let raw = fs::read_to_string("cobalt.yml")?;
-	let cfg = Arc::new(Config::from_str(&raw)?);
+	let cfg = Config::from_str(&raw)?;
 	debug!("Parsed configuration: {:#?}", cfg);
 
 	let pool = db::establish_pg_conn().await?;
@@ -31,7 +31,7 @@ async fn main() -> anyhow::Result<()> {
 
 	// let (tx, rx) = mpsc::channel::<()>(1);
 
-	task::spawn(web::run(cfg.clone(), pool.clone())).await??;
+	web::run(cfg.clone(), pool.clone()).await?;
 	// task::spawn(async move {
 	// 	loop {
 	// 		rx.recv();

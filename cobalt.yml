@@ -1,25 +1,42 @@
 round: Mock 0.1
 inject_dir: injects/
 
-web:
-  admin_username: safin
-  admin_password: password
-  port: 8080
-
-timing:
-  interval: 30
-  jitter: 5
-  timeout: 30
-
 scoring:
   service_up: 5
   service_down: 0
   # should be a negative value
   sla: -10
 
+timing:
+  interval: 30
+  jitter: 5
+  timeout: 30
+
 slas:
   enable: true
   max_consecutive_downs: 5
+
+teams:
+  Cobalt:
+    subnet: 10.10.11.x
+    password: meow123
+
+  Flashpoint:
+    subnet: 10.10.12.x
+    password: bruh123
+
+  Tempest:
+    subnet: 10.10.13.x
+    password: okay123
+
+  Triton:
+    subnet: 10.10.14.x
+    password: pass123
+
+web:
+  admin_username: safin
+  admin_password: password
+  port: 8080
 
 vms:
   earth:
@@ -68,9 +85,3 @@ injects:
     source: it.pdf
     offset: 00:15:00
     type: response
-
-teams:
-  Cobalt: 10.10.11.x
-  Flashpoint: 10.10.12.x
-  Tempest: 10.10.13.x
-  Triton: 10.10.14.x

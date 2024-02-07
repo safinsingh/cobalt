@@ -1,12 +1,16 @@
-use axum::extract::State;
-use crate::web::{WebState, WebResult};
+use crate::web::{WebResult, WebState};
 use askama_axum::Template;
+use axum::extract::State;
 use axum::response::IntoResponse;
 
 #[derive(Template)]
 #[template(path = "login.html")]
-struct Login;
+struct Login {
+	mock_title: String,
+}
 
 pub async fn login(State(ctxt): State<WebState>) -> WebResult<impl IntoResponse> {
-	Ok(Login)
+	Ok(Login {
+		mock_title: ctxt.title(),
+	})
 }
