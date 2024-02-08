@@ -1,5 +1,6 @@
-mod auth;
 mod injects;
+mod login;
+mod logout;
 mod status;
 
 use crate::{auth::AuthSession, config::Config};
@@ -67,7 +68,7 @@ impl BaseTemplate {
 		}
 	}
 
-	fn get_team<'a>(&'a self) -> &'a str {
+	fn team_name(&self) -> &str {
 		&self.user.as_ref().unwrap().username
 	}
 }
@@ -93,12 +94,12 @@ pub async fn run(config: Config, pool: PgPool) -> anyhow::Result<()> {
 	let protected = Router::new()
 		.route("/injects", get(injects::get))
 		.route_layer(login_required!(Config, login_url = "/login"))
-		.route("/login", get(auth::login::get))
-		.route("/login", post(auth::login::post))
-		.route("/logout", get(auth::logout::get));
+		.route("/login", get(login::get))
+		.route("/login", post(login::post))
+		.route("/logout", get(logout::get));
 
 	let app = Router::new()
-		.route("/status", get(status::get))
+		.route("/", get(status::get))
 		.nest_service("/assets", ServeDir::new("assets"))
 		.merge(protected)
 		.layer(MessagesManagerLayer)
@@ -107,7 +108,7 @@ pub async fn run(config: Config, pool: PgPool) -> anyhow::Result<()> {
 
 	info!("Web server running on {}", listener.local_addr()?);
 	axum::serve(listener, app)
-		// .with_graceful_shutdown(shutdown_signal(deletion_task.abort_handle()))
+		.with_graceful_shutdown(shutdown_signal(deletion_task.abort_handle()))
 		.await?;
 	Ok(())
 }

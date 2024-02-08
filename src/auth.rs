@@ -5,12 +5,12 @@ use serde::Deserialize;
 use std::convert::Infallible;
 
 #[derive(Clone)]
-pub struct AuthTeam {
+pub struct User {
 	pub username: String,
 	password: String,
 }
 
-impl AuthUser for AuthTeam {
+impl AuthUser for User {
 	type Id = String;
 
 	fn id(&self) -> Self::Id {
@@ -22,7 +22,7 @@ impl AuthUser for AuthTeam {
 	}
 }
 
-impl std::fmt::Debug for AuthTeam {
+impl std::fmt::Debug for User {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		f.debug_struct("User")
 			.field("username", &self.username)
@@ -41,7 +41,7 @@ pub struct Credentials {
 
 #[async_trait]
 impl AuthnBackend for Config {
-	type User = AuthTeam;
+	type User = User;
 	type Credentials = Credentials;
 	type Error = Infallible;
 
@@ -53,16 +53,16 @@ impl AuthnBackend for Config {
 			.teams
 			.get(&creds.username)
 			.filter(|user| user.password == creds.password)
-			.map(|team| AuthTeam {
+			.map(|user| User {
 				username: creds.username,
-				password: team.password.to_owned(),
+				password: user.password.to_owned(),
 			}))
 	}
 
 	async fn get_user(&self, user_id: &UserId<Self>) -> Result<Option<Self::User>, Self::Error> {
-		Ok(self.teams.get(&*user_id).map(|team| AuthTeam {
+		Ok(self.teams.get(user_id).map(|user| User {
 			username: user_id.to_owned(),
-			password: team.password.to_owned(),
+			password: user.password.to_owned(),
 		}))
 	}
 }

@@ -37,9 +37,9 @@ fn flatten_team_snapshots(snapshots: &Vec<LatestTeamSnapshot>) -> (FlattenedServ
 	let mut vm_service_names = Vec::new();
 	let mut gathered_service_names = false;
 
-	for snapshot in snapshots.into_iter() {
+	for snapshot in snapshots {
 		let mut vm_services = Vec::new();
-		for (vm, services) in snapshot.services.0.iter() {
+		for (vm, services) in &*snapshot.services {
 			for (service, info) in services {
 				let vm_service = format!("[{}] {}", vm, service);
 				if !gathered_service_names {
@@ -60,7 +60,7 @@ fn flatten_team_snapshots(snapshots: &Vec<LatestTeamSnapshot>) -> (FlattenedServ
 	(teams, vm_service_names)
 }
 
-fn extract_team_table(snapshots: &Vec<LatestTeamSnapshot>) -> Vec<TeamInfo> {
+fn extract_team_table(snapshots: &[LatestTeamSnapshot]) -> Vec<TeamInfo> {
 	snapshots
 		.iter()
 		.map(|team| {
@@ -68,7 +68,7 @@ fn extract_team_table(snapshots: &Vec<LatestTeamSnapshot>) -> Vec<TeamInfo> {
 				team.services
 					.iter()
 					.fold((0, 0), |(mut up, mut down), (_, itx)| {
-						for (_, svc) in itx {
+						for svc in itx.values() {
 							if svc.up {
 								up += 1;
 							} else {

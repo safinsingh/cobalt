@@ -26,7 +26,7 @@ pub async fn run(cfg: Config, pool: PgPool) -> anyhow::Result<()> {
 				let time = Utc::now();
 				let res = timeout(
 					Duration::from_secs(cfg.timing.check_timeout as u64),
-					service.score(ip, &vm),
+					service.score(ip, vm),
 				)
 				.await
 				.map_err(|_| {
@@ -44,9 +44,9 @@ pub async fn run(cfg: Config, pool: PgPool) -> anyhow::Result<()> {
 
 				db::mutation::record_service(
 					&pool,
-					&team_alias,
-					&vm_alias,
-					&service_alias,
+					team_alias,
+					vm_alias,
+					service_alias,
 					time,
 					&res,
 				)
@@ -54,9 +54,9 @@ pub async fn run(cfg: Config, pool: PgPool) -> anyhow::Result<()> {
 
 				let incurred_sla = db::query::check_sla_violation(
 					&pool,
-					&team_alias,
-					&vm_alias,
-					&service_alias,
+					team_alias,
+					vm_alias,
+					service_alias,
 					cfg.slas.max_consecutive_downs,
 				)
 				.await?;
@@ -67,9 +67,9 @@ pub async fn run(cfg: Config, pool: PgPool) -> anyhow::Result<()> {
 					);
 					db::mutation::report_sla_violation(
 						&pool,
-						&team_alias,
-						&vm_alias,
-						&service_alias,
+						team_alias,
+						vm_alias,
+						service_alias,
 						time,
 					)
 					.await?;
@@ -87,7 +87,7 @@ pub async fn run(cfg: Config, pool: PgPool) -> anyhow::Result<()> {
 		}
 
 		let time = Utc::now();
-		db::mutation::snapshot_team(&pool, &team_alias, team_snapshot, cfg.scoring, time).await?;
+		db::mutation::snapshot_team(&pool, team_alias, team_snapshot, cfg.scoring, time).await?;
 	}
 
 	Ok(())

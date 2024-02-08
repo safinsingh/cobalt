@@ -10,7 +10,7 @@ mod web;
 use crate::config::Config;
 use dotenvy::dotenv;
 use log::{debug, LevelFilter};
-use std::{fs, sync::Arc};
+use std::fs;
 use tokio::{sync::mpsc, task};
 
 #[tokio::main]

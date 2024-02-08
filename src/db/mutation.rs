@@ -37,7 +37,7 @@ pub async fn record_service(
 	time: DateTime<Utc>,
 	status: &CheckResult,
 ) -> anyhow::Result<()> {
-	let (short, long) = get_check_result_errors(&status);
+	let (short, long) = get_check_result_errors(status);
 
 	sqlx::query!(
 		r#"

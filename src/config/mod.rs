@@ -167,7 +167,7 @@ impl Deref for Config {
 	type Target = ConfigInner;
 
 	fn deref(&self) -> &Self::Target {
-		&*self.inner
+		&self.inner
 	}
 }
 
@@ -207,7 +207,7 @@ impl ConfigInner {
 		for inject in &self.injects {
 			if let InjectType::Service { vm, services } = &inject.inner {
 				if let Some(existing_vm) = self.vms.get(vm) {
-					for (service_alias, _) in services {
+					for service_alias in services.keys() {
 						ensure!(
 							!existing_vm.services.contains_key(service_alias),
 							"inject '{}' creates service '{}' on vm '{}', but a service with that name already exists",

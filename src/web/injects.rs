@@ -1,7 +1,4 @@
-use crate::{
-	auth::{AuthSession, AuthTeam},
-	web::WebState,
-};
+use crate::{auth::AuthSession, web::WebState};
 use askama::Template;
 use axum::{extract::State, http::StatusCode, response::IntoResponse};
 
