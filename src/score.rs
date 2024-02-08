@@ -10,9 +10,6 @@ use sqlx::PgPool;
 use std::{collections::HashMap, net::Ipv4Addr, str::FromStr, time::Duration};
 use tokio::time::timeout;
 
-// 30 second check timeout
-const TIMEOUT: u64 = 30;
-
 pub async fn run(cfg: &Config, pool: PgPool) -> anyhow::Result<()> {
 	for (team, subnet) in cfg.teams.iter().shuffle() {
 		let mut team_snapshot = HashMap::new();
@@ -28,14 +25,14 @@ pub async fn run(cfg: &Config, pool: PgPool) -> anyhow::Result<()> {
 				let ip = Ipv4Addr::from_str(&subnet.replace('x', &vm.ip.to_string())).unwrap();
 				let time = Utc::now();
 				let res = timeout(
-					Duration::from_secs(cfg.timing.timeout as u64),
+					Duration::from_secs(cfg.timing.check_timeout as u64),
 					service.score(ip, &vm),
 				)
 				.await
 				.map_err(|_| {
 					check_error!(
 						"Timed out",
-						format!("Timed out after {} seconds", cfg.timing.timeout)
+						format!("Timed out after {} seconds", cfg.timing.check_timeout)
 					)
 				})
 				.and_then(|ok| ok);

@@ -8,8 +8,9 @@ use axum::{
 	Router,
 };
 use itertools::Itertools;
+use log::info;
 use sqlx::PgPool;
-use std::sync::Arc;
+use std::{net::SocketAddrV4, sync::Arc};
 use tokio::net::TcpListener;
 use tower_http::services::ServeDir;
 
@@ -51,6 +52,7 @@ pub async fn run(config: Arc<Config>, pool: PgPool) -> anyhow::Result<()> {
 			config: config.clone(),
 		});
 
+	info!("Web server running on {}", listener.local_addr()?);
 	axum::serve(listener, app).await?;
 	Ok(())
 }

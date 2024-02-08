@@ -8,13 +8,13 @@ mod web;
 
 use crate::config::Config;
 use dotenvy::dotenv;
-use log::debug;
+use log::{debug, LevelFilter};
 use std::{fs, sync::Arc};
 use tokio::task;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-	env_logger::init();
+	env_logger::builder().filter_level(LevelFilter::Info).init();
 	dotenv()?;
 
 	let raw = fs::read_to_string("cobalt.yml")?;

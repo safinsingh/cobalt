@@ -9,7 +9,7 @@ web:
 timing:
   interval: 30
   jitter: 5
-  timeout: 30
+  check_timeout: 30
 
 scoring:
   service_up: 5
@@ -24,6 +24,8 @@ slas:
 boxes:
   earth:
     ip: 1
+    credentials:
+      safin: password
 
     services:
       Wordpress:
@@ -47,9 +49,6 @@ boxes:
         type: ssh
         login: unix
         user: safin
-
-    credentials:
-      safin: password
 
 injects:
   - title: Create SSH server
