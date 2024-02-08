@@ -24,6 +24,7 @@ async fn main() -> anyhow::Result<()> {
 	let pool = db::establish_pg_conn().await?;
 
 	let running = Arc::new(Mutex::new(false));
-	tokio::spawn(score::run(cfg, pool, running));
-	web::run(cfg.clone(), pool.clone()).await
+	tokio::spawn(score::run(cfg.clone(), pool.clone(), running));
+
+	web::run(cfg, pool).await
 }
