@@ -7,10 +7,10 @@ use crate::{
 use chrono::Utc;
 use log::{debug, info};
 use sqlx::PgPool;
-use std::{collections::HashMap, net::Ipv4Addr, str::FromStr, time::Duration};
-use tokio::time::timeout;
+use std::{collections::HashMap, net::Ipv4Addr, str::FromStr, sync::Arc, time::Duration};
+use tokio::{sync::Mutex, time::timeout};
 
-pub async fn run(cfg: Config, pool: PgPool) -> anyhow::Result<()> {
+async fn score(cfg: Config, pool: PgPool) -> anyhow::Result<()> {
 	for (team_alias, team) in cfg.teams.iter().shuffle() {
 		let mut team_snapshot = HashMap::new();
 		for (vm_alias, vm) in cfg.vms.iter().shuffle() {
@@ -91,4 +91,13 @@ pub async fn run(cfg: Config, pool: PgPool) -> anyhow::Result<()> {
 	}
 
 	Ok(())
+}
+
+pub async fn run(cfg: Config, pool: PgPool, running: Arc<Mutex<bool>>) -> anyhow::Result<()> {
+	loop {
+		if *running.lock().await {
+			score(cfg.clone(), pool.clone()).await?;
+			tokio::time::sleep(cfg.timing.jittered_interval()).await;
+		}
+	}
 }

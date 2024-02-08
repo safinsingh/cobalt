@@ -11,7 +11,7 @@ use crate::config::Config;
 use dotenvy::dotenv;
 use log::{debug, LevelFilter};
 use std::{fs, sync::Arc};
-use tokio::{sync::mpsc, task};
+use tokio::sync::Mutex;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -21,27 +21,9 @@ async fn main() -> anyhow::Result<()> {
 	let raw = fs::read_to_string("cobalt.yml")?;
 	let cfg = Config::from_str(&raw)?;
 	debug!("Parsed configuration: {:#?}", cfg);
-
 	let pool = db::establish_pg_conn().await?;
 
-	// score::run(&cfg, pool.clone()).await.unwrap();
-	// score::run(&cfg, pool.clone()).await.unwrap();
-	// score::run(&cfg, pool.clone()).await.unwrap();
-	// score::run(&cfg, pool.clone()).await.unwrap();
-
-	// let (tx, rx) = mpsc::channel::<()>(1);
-
-	web::run(cfg.clone(), pool.clone()).await?;
-	// task::spawn(async move {
-	// 	loop {
-	// 		rx.recv();
-	// 		loop {
-	// 			score::run(&cfg, pool.clone()).await.unwrap();
-	// 			tokio::time::sleep(cfg.timing.jittered_interval()).await;
-	// 		}
-	// 	}
-	// })
-	// .await?;
-
-	Ok(())
+	let running = Arc::new(Mutex::new(false));
+	tokio::spawn(score::run(cfg, pool, running));
+	web::run(cfg.clone(), pool.clone()).await
 }
