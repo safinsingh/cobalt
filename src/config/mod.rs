@@ -1,4 +1,3 @@
-mod auth;
 pub mod check_types;
 
 use crate::checks::{Check, CheckResult};
@@ -6,9 +5,7 @@ use anyhow::{bail, ensure};
 use enum_dispatch::enum_dispatch;
 use rand::Rng;
 use serde::Deserialize;
-use std::ops::Deref;
-use std::sync::Arc;
-use std::{collections::HashMap, net::Ipv4Addr, path::PathBuf};
+use std::{collections::HashMap, net::Ipv4Addr, ops::Deref, path::PathBuf, sync::Arc};
 
 // check interval (default: 120sec)
 const DEFAULT_INTERVAL: u32 = 120;

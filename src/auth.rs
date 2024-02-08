@@ -1,6 +1,7 @@
 use crate::config::Config;
 use async_trait::async_trait;
 use axum_login::{AuthUser, AuthnBackend, UserId};
+use serde::Deserialize;
 use std::convert::Infallible;
 
 #[derive(Clone)]
@@ -30,6 +31,7 @@ impl std::fmt::Debug for AuthTeam {
 	}
 }
 
+#[derive(Clone, Deserialize)]
 pub struct Credentials {
 	pub username: String,
 	pub password: String,
@@ -64,3 +66,5 @@ impl AuthnBackend for Config {
 		}))
 	}
 }
+
+pub type AuthSession = axum_login::AuthSession<Config>;

@@ -1,3 +1,4 @@
+mod auth;
 mod checks;
 mod config;
 mod db;
@@ -10,8 +11,7 @@ use crate::config::Config;
 use dotenvy::dotenv;
 use log::{debug, LevelFilter};
 use std::{fs, sync::Arc};
-use tokio::sync::mpsc;
-use tokio::task;
+use tokio::{sync::mpsc, task};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

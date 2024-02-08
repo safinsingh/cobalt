@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>{% block title %}{{ mock_title }}{% endblock %}</title>
+    <title>{% block title %}{{ base.mock_title }}{% endblock %}</title>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css" integrity="sha512-NmLkDIU1C/C88wi324HBc+S2kLhi08PN5GDeUVVVC/BVt/9Izdsc9SVeVfA1UZbY3sHUlDSyRXhCzHfr6hmPPw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 	<link rel="preconnect" href="https://rsms.me/">
 	<link rel="stylesheet" href="https://rsms.me/inter/inter.css">
@@ -10,11 +10,17 @@
   </head>
   <body>
     <div id="content">
-      <div id="navbar">
-        <span>{{ mock_title }}</span>
-        <a href="/status">status</a>
-        <a href="/login">login</a>
-      </div>
+		<div id="navbar-lip"></div>
+    	<div id="navbar">
+			<span>{{ base.mock_title }}</span>
+			<a href="/status">status</a>
+			{% if base.user.is_some() %}
+				<a href="/injects">injects</a>
+				<a href="/logout">logout</a>
+			{% else %}
+				<a href="/login">login</a>
+			{% endif %}
+		</div>
       {% block content %}<p>Placeholder content</p>{% endblock %}
     </div>
   </body>

@@ -4,10 +4,17 @@
 
 <h1>Login</h1>
 
-<form>
+<form method="post">
     <input type="text" name="username" placeholder="username" />
     <input type="password" name="password" placeholder="password" />
     <input type="submit" value="log in" />
+	{% if let Some(next) = next %}
+    	<input type="hidden" name="next" value="{{next}}" />
+	{% endif %}
 </form>
+
+{% for message in messages %}
+<span class="message">{{ message }}</span>
+{% endfor %}
 
 {% endblock %}

@@ -1,6 +1,12 @@
-use super::{WebResult, WebState};
-use crate::db::query::TeamProgression;
-use crate::db::{self, models::ServiceGatheredInfo, query::LatestTeamSnapshot};
+use super::{BaseTemplate, WebResult, WebState};
+use crate::{
+	auth::AuthSession,
+	db::{
+		self,
+		models::ServiceGatheredInfo,
+		query::{LatestTeamSnapshot, TeamProgression},
+	},
+};
 use askama_axum::Template;
 use axum::{extract::State, response::IntoResponse};
 use chrono::{DateTime, Local};
@@ -16,8 +22,8 @@ struct TeamInfo {
 
 #[derive(Template)]
 #[template(path = "status.html")]
-struct ServiceStatusTpl {
-	mock_title: String,
+struct StatusTemplate {
+	base: BaseTemplate,
 	// service names altered to be <vm>-<service>
 	status_table: FlattenedServices,
 	vm_service_names: Vec<String>,
@@ -84,8 +90,10 @@ fn extract_team_table(snapshots: &Vec<LatestTeamSnapshot>) -> Vec<TeamInfo> {
 		.collect()
 }
 
-#[axum_macros::debug_handler]
-pub async fn status(State(ctxt): State<WebState>) -> WebResult<impl IntoResponse> {
+pub async fn get(
+	State(ctxt): State<WebState>,
+	auth_session: AuthSession,
+) -> WebResult<impl IntoResponse> {
 	let teams = db::query::latest_service_statuses(&ctxt.pool).await?;
 	let latest_time =
 		DateTime::<Local>::from(teams.iter().map(|t| t.time).max().unwrap_or_default())
@@ -95,8 +103,8 @@ pub async fn status(State(ctxt): State<WebState>) -> WebResult<impl IntoResponse
 	let team_table = extract_team_table(&teams);
 	let team_progressions = db::query::team_progressions(&ctxt.pool).await?;
 
-	Ok(ServiceStatusTpl {
-		mock_title: ctxt.title(),
+	Ok(StatusTemplate {
+		base: BaseTemplate::from_params(ctxt.config, auth_session),
 		status_table,
 		vm_service_names,
 		latest_time,

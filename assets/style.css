@@ -125,9 +125,21 @@ input[type="submit"]:hover {
 	flex: 1;
 }
 
+#navbar-lip {
+	position: sticky;
+	top: 0px;
+	background-color: white;
+	height: 20px;
+}
+
 a,
 a:hover,
 a:active,
 a:visited {
 	color: blue;
+}
+
+.message {
+	color: red;
+	font-style: italic;
 }
