@@ -1,10 +1,13 @@
+mod auth;
 pub mod check_types;
 
 use crate::checks::{Check, CheckResult};
-use anyhow::bail;
+use anyhow::{bail, ensure};
 use enum_dispatch::enum_dispatch;
 use rand::Rng;
 use serde::Deserialize;
+use std::ops::Deref;
+use std::sync::Arc;
 use std::{collections::HashMap, net::Ipv4Addr, path::PathBuf};
 
 // check interval (default: 120sec)
@@ -50,7 +53,6 @@ pub struct Vm {
 #[serde(rename_all = "snake_case")]
 enum InjectType {
 	Service {
-		#[serde(rename = "box")]
 		vm: String,
 		services: HashMap<String, Service>,
 	},
@@ -139,7 +141,13 @@ pub struct Web {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct Config {
+pub struct Team {
+	pub subnet: String,
+	pub password: String,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct ConfigInner {
 	pub round: String,
 	pub inject_dir: PathBuf,
 	pub timing: Timing,
@@ -148,30 +156,73 @@ pub struct Config {
 	#[serde(default)]
 	pub slas: Slas,
 	// more intuitive naming
-	#[serde(rename = "boxes")]
 	pub vms: HashMap<String, Vm>,
 	pub injects: Vec<Inject>,
-	pub teams: HashMap<String, String>,
+	pub teams: HashMap<String, Team>,
+}
+
+#[derive(Clone)]
+pub struct Config {
+	inner: Arc<ConfigInner>,
+}
+
+impl Deref for Config {
+	type Target = ConfigInner;
+
+	fn deref(&self) -> &Self::Target {
+		&*self.inner
+	}
+}
+
+impl std::fmt::Debug for Config {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		std::fmt::Debug::fmt(&self.inner, f)
+	}
 }
 
 impl Config {
 	pub fn from_str(s: &str) -> anyhow::Result<Self> {
-		let cfg: Self = serde_yaml::from_str(s)?;
+		let cfg: ConfigInner = serde_yaml::from_str(s)?;
 		cfg.validate()?;
-		Ok(cfg)
+		Ok(Self {
+			inner: Arc::new(cfg),
+		})
 	}
+}
 
+impl ConfigInner {
 	fn validate(&self) -> anyhow::Result<()> {
-		self.validate_teams()
+		self.validate_teams()?;
+		self.validate_injects()
 	}
 
 	fn validate_teams(&self) -> anyhow::Result<()> {
-		for (alias, subnet) in &self.teams {
-			let ip_str = subnet.replace('x', "1");
+		for (team_alias, team) in &self.teams {
+			let ip_str = team.subnet.replace('x', "1");
 			if ip_str.parse::<Ipv4Addr>().is_err() {
-				bail!("Invalid subnet for team '{}': {}", alias, subnet);
+				bail!("Invalid subnet for team '{}': {}", team_alias, team.subnet);
 			}
 		}
+		Ok(())
+	}
+
+	fn validate_injects(&self) -> anyhow::Result<()> {
+		for inject in &self.injects {
+			if let InjectType::Service { vm, services } = &inject.inner {
+				if let Some(existing_vm) = self.vms.get(vm) {
+					for (service_alias, _) in services {
+						ensure!(
+							!existing_vm.services.contains_key(service_alias),
+							"inject '{}' creates service '{}' on vm '{}', but a service with that name already exists",
+							inject.title, service_alias, vm
+						);
+					}
+				} else {
+					bail!("inject '{}' refers to unknown vm '{}'", inject.title, vm);
+				}
+			}
+		}
+
 		Ok(())
 	}
 }

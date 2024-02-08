@@ -8,3 +8,9 @@ red-vs-blue simulation engine
 - patch server hosting
 - calculate/display service SLAs and uptime percentages
 - overall leaderboard
+
+todo:
+- db scoring transaction (gather queries w/ map; sep. transaction for writes)
+- login
+- web nav
+- event loop

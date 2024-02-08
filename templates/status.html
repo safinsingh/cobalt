@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header">
+    <h1>Status</h1>
+    <i>Generated At: {{ latest_time }}</i>
+</div>
+
+<div>
+    <h2>Services</h2>
+    <table>
+        <thead>
+            <tr>
+                <th></th>
+                {% for vm_srv in vm_service_names %}
+                    <th>{{ vm_srv }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for (team, service) in status_table %}
+                <tr>
+                    <td>{{ team }}</td>
+                    {% for (_, info) in service %}
+                        {% if info.up %}
+                        <td class="serviceUp">
+                        {% else %}
+                        <td class="serviceDown">
+                        {% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div>
+    <h2>Teams</h2>
+    <table id="grid-table">
+        <thead>
+            <tr>
+                <th>Team</th>
+                <th>Services Up</th>
+                <th>Services Down</th>
+                <th>Points</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for team in team_table %}
+                <tr>
+                    <td>{{ team.team }}</td>
+                    <td>{{ team.services_up }}</td>
+                    <td>{{ team.services_down }}</td>
+                    <td>{{ team.points }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.0/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+
+<div>
+    <h2>Progression</h2>
+    <canvas id="myChart"></canvas>
+</div>
+
+<script>
+    function transformData(data) {
+        const teamsData = data.reduce((acc, [team, [date, points]]) => {
+            if (!acc[team]) {
+                acc[team] = {
+                    label: team,
+                    data: [],
+                    fill: false
+                };
+            }
+            acc[team].data.push({ x: date, y: points });
+            return acc;
+        }, {});
+
+        return Object.values(teamsData);
+    }
+
+    const ctx = document.getElementById("myChart");
+    const rawData = [
+        {% for snapshot in team_progressions %}
+        ["{{ snapshot.team }}", [new Date("{{ snapshot.time }}"), {{ snapshot.points }}]],
+        {% endfor %}
+    ];
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: transformData(rawData)
+        },
+        options: {
+            scales: {
+                x: {
+                    type: 'time',
+                    title: {
+                        display: true,
+                        text: 'Date'
+                    },
+                    time: {
+                        unit: 'hour'
+                    },
+                    ticks: {
+                        maxTicksLimit: 8
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Points'
+                    }
+                }
+            }
+        }
+    });
+</script>
+  
+{% endblock %}

@@ -1,4 +1,5 @@
-mod routes;
+mod login;
+mod status;
 
 use crate::config::Config;
 use axum::{
@@ -17,7 +18,7 @@ use tower_http::services::ServeDir;
 #[derive(Clone)]
 pub struct WebState {
 	pool: PgPool,
-	config: Arc<Config>,
+	config: Config,
 }
 
 pub struct WebError(anyhow::Error);
@@ -42,15 +43,19 @@ where
 	}
 }
 
-pub async fn run(config: Arc<Config>, pool: PgPool) -> anyhow::Result<()> {
+impl WebState {
+	fn title(&self) -> String {
+		self.config.round.to_owned()
+	}
+}
+
+pub async fn run(config: Config, pool: PgPool) -> anyhow::Result<()> {
 	let listener = TcpListener::bind(("0.0.0.0", config.web.port)).await?;
 	let app = Router::new()
-		.route("/service_statuses", get(routes::service_statuses))
+		.route("/login", get(login::login))
+		.route("/status", get(status::status))
 		.nest_service("/assets", ServeDir::new("assets"))
-		.with_state(WebState {
-			pool,
-			config: config.clone(),
-		});
+		.with_state(WebState { pool, config });
 
 	info!("Web server running on {}", listener.local_addr()?);
 	axum::serve(listener, app).await?;

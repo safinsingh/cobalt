@@ -9,6 +9,8 @@ askama = { version = "0.12.1", features = ["with-axum"] }
 askama_axum = "0.4.0"
 async-trait = "0.1.77"
 axum = "0.7.4"
+axum-login = "0.13.1"
+axum-macros = "0.4.1"
 chrono = { version = "0.4.33", features = ["serde"] }
 dotenvy = "0.15.7"
 enum_dispatch = "0.3.12"
@@ -31,4 +33,6 @@ sqlx = { version = "0.7.3", features = [
 ] }
 tokio = { version = "1.35.1", features = ["full"] }
 tower-http = { version = "0.5.1", features = ["fs"] }
+tower-sessions = "0.10.2"
+tower-sessions-sqlx-store = { version = "0.10.0", features = ["postgres"] }
 url = "2.5.0"

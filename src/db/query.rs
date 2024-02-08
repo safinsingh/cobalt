@@ -44,6 +44,7 @@ pub type OwnedServiceMap = HashMap<String, HashMap<String, ServiceGatheredInfo>>
 #[derive(Serialize, Deserialize, FromRow)]
 pub struct LatestTeamSnapshot {
 	pub team: String,
+	pub points: i32,
 	// { [vm: string]: { [service: string]: boolean } }
 	pub services: Json<OwnedServiceMap>,
 	pub time: DateTime<Utc>,
@@ -54,7 +55,7 @@ pub async fn latest_service_statuses(
 ) -> anyhow::Result<Vec<LatestTeamSnapshot>> {
 	let teams = sqlx::query_as::<_, LatestTeamSnapshot>(
 		r#"
-		SELECT DISTINCT ON (team) team, services, time
+		SELECT DISTINCT ON (team) team, points, services, time
 		FROM team_snapshots
 		ORDER BY team, time DESC;
 	"#,
@@ -63,4 +64,22 @@ pub async fn latest_service_statuses(
 	.await?;
 
 	Ok(teams)
+}
+
+#[derive(Serialize, Deserialize, FromRow)]
+pub struct TeamProgression {
+	pub team: String,
+	pub points: i32,
+	pub time: DateTime<Utc>,
+}
+
+pub async fn team_progressions(conn: impl PgExecutor<'_>) -> anyhow::Result<Vec<TeamProgression>> {
+	let progression = sqlx::query_as!(
+		TeamProgression,
+		"SELECT team, points, time FROM team_snapshots"
+	)
+	.fetch_all(conn)
+	.await?;
+
+	Ok(progression)
 }
