@@ -8,7 +8,10 @@ use chrono::Utc;
 use log::{debug, info};
 use sqlx::PgPool;
 use std::{collections::HashMap, net::Ipv4Addr, str::FromStr, sync::Arc, time::Duration};
-use tokio::{sync::Mutex, time::timeout};
+use tokio::{
+	sync::{Mutex, RwLock},
+	time::timeout,
+};
 
 async fn score(cfg: Config, pool: PgPool) -> anyhow::Result<()> {
 	for (team_alias, team) in cfg.teams.iter().shuffle() {
@@ -93,9 +96,9 @@ async fn score(cfg: Config, pool: PgPool) -> anyhow::Result<()> {
 	Ok(())
 }
 
-pub async fn run(cfg: Config, pool: PgPool, running: Arc<Mutex<bool>>) -> anyhow::Result<()> {
+pub async fn run(cfg: Config, pool: PgPool, running: Arc<RwLock<bool>>) -> anyhow::Result<()> {
 	loop {
-		if *running.lock().await {
+		if *running.read().await {
 			score(cfg.clone(), pool.clone()).await?;
 			tokio::time::sleep(cfg.timing.jittered_interval()).await;
 		}

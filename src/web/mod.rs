@@ -16,15 +16,23 @@ use axum_login::{
 use axum_messages::MessagesManagerLayer;
 use log::info;
 use sqlx::PgPool;
-use tokio::{net::TcpListener, signal, task::AbortHandle};
+use std::sync::Arc;
+use tokio::{net::TcpListener, signal, sync::RwLock, task::AbortHandle};
 use tower_http::services::ServeDir;
 use tower_sessions::{Expiry, SessionManagerLayer};
 use tower_sessions_sqlx_store::PostgresStore;
 
 #[derive(Clone)]
 pub struct WebState {
-	pool: PgPool,
 	config: Config,
+	pool: PgPool,
+	scoring: Arc<RwLock<bool>>,
+}
+
+impl WebState {
+	pub async fn is_running(&self) -> bool {
+		*self.scoring.read().await
+	}
 }
 
 pub struct WebError(anyhow::Error);
@@ -58,12 +66,14 @@ impl WebState {
 pub struct BaseTemplate {
 	pub mock_title: String,
 	pub user: Option<<Config as AuthnBackend>::User>,
+	pub running: bool,
 }
 
 impl BaseTemplate {
-	fn from_params(config: Config, auth_session: AuthSession) -> Self {
+	pub async fn from_params(state: &WebState, auth_session: AuthSession) -> Self {
 		Self {
-			mock_title: config.round.clone(),
+			mock_title: state.config.round.clone(),
+			running: state.is_running().await,
 			user: auth_session.user,
 		}
 	}
@@ -73,7 +83,7 @@ impl BaseTemplate {
 	}
 }
 
-pub async fn run(config: Config, pool: PgPool) -> anyhow::Result<()> {
+pub async fn run(config: Config, pool: PgPool, scoring: Arc<RwLock<bool>>) -> anyhow::Result<()> {
 	let session_store = PostgresStore::new(pool.clone());
 	session_store.migrate().await?;
 
@@ -104,12 +114,18 @@ pub async fn run(config: Config, pool: PgPool) -> anyhow::Result<()> {
 		.merge(protected)
 		.layer(MessagesManagerLayer)
 		.layer(auth_layer)
-		.with_state(WebState { pool, config });
+		.with_state(WebState {
+			config,
+			pool,
+			scoring,
+		});
 
 	info!("Web server running on {}", listener.local_addr()?);
 	axum::serve(listener, app)
 		.with_graceful_shutdown(shutdown_signal(deletion_task.abort_handle()))
 		.await?;
+
+	deletion_task.await??;
 	Ok(())
 }
 

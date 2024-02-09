@@ -3,6 +3,9 @@
   <head>
     <title>{% block title %}{{ base.mock_title }}{% endblock %}</title>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css" integrity="sha512-NmLkDIU1C/C88wi324HBc+S2kLhi08PN5GDeUVVVC/BVt/9Izdsc9SVeVfA1UZbY3sHUlDSyRXhCzHfr6hmPPw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
 	<link rel="preconnect" href="https://rsms.me/">
 	<link rel="stylesheet" href="https://rsms.me/inter/inter.css">
 	<link rel="stylesheet" href="/assets/style.css">
@@ -12,8 +15,8 @@
     <div id="content">
 		<div id="navbar-lip"></div>
     	<div id="navbar">
-			<span>{{ base.mock_title }}</span>
-			<a href="/status">status</a>
+			<span class="mockTitle">{{ base.mock_title }} {% if base.running %}<div class="upCircle" title="scoring started"></div>{% else %}<div class="downCircle" title="scoring stopped"></div>{% endif %}</span>
+			<a href="/">status</a>
 			{% if base.user.is_some() %}
 				<a href="/injects">injects</a>
 				<a href="/logout">logout</a>

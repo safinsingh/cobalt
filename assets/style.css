@@ -143,3 +143,64 @@ a:visited {
 	color: red;
 	font-style: italic;
 }
+
+.offset {
+	color: gray;
+}
+
+.injectMeta {
+	font-family: "Roboto Mono", monospace;
+}
+
+.inject {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+}
+
+.injectText {
+	flex: 1;
+}
+
+.toInject {
+	height: 100%;
+}
+
+.toInject button {
+	font-family: inherit;
+	width: 30px;
+	height: 30px;
+	text-align: center;
+	background-color: black;
+	outline: none;
+	border-radius: 0px;
+	border: 1px solid black;
+	color: white;
+}
+
+.toInject button:hover {
+	background-color: white;
+	color: black;
+	cursor: pointer;
+}
+
+.mockTitle {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.mockTitle div {
+	width: 10px;
+	height: 10px;
+	border-radius: 5px;
+}
+
+.upCircle {
+	background-color: #b5f5b9;
+}
+
+.downCircle {
+	background-color: #f5b5b5;
+}

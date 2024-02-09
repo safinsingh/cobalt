@@ -11,7 +11,7 @@ use crate::config::Config;
 use dotenvy::dotenv;
 use log::{debug, LevelFilter};
 use std::{fs, sync::Arc};
-use tokio::sync::Mutex;
+use tokio::sync::{Mutex, RwLock};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -23,8 +23,7 @@ async fn main() -> anyhow::Result<()> {
 	debug!("Parsed configuration: {:#?}", cfg);
 	let pool = db::establish_pg_conn().await?;
 
-	let running = Arc::new(Mutex::new(false));
-	tokio::spawn(score::run(cfg.clone(), pool.clone(), running));
-
-	web::run(cfg, pool).await
+	let running = Arc::new(RwLock::new(false));
+	tokio::spawn(score::run(cfg.clone(), pool.clone(), running.clone()));
+	web::run(cfg, pool, running).await
 }

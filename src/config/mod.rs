@@ -48,7 +48,7 @@ pub struct Vm {
 #[derive(Deserialize, Debug)]
 #[serde(tag = "type")]
 #[serde(rename_all = "snake_case")]
-enum InjectType {
+pub enum InjectType {
 	Service {
 		vm: String,
 		services: HashMap<String, Service>,
@@ -56,13 +56,22 @@ enum InjectType {
 	Response,
 }
 
+impl std::fmt::Display for InjectType {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		match self {
+			Self::Service { vm, .. } => write!(f, "Service (vm='{}')", vm),
+			Self::Response => write!(f, "Response"),
+		}
+	}
+}
+
 #[derive(Deserialize, Debug)]
 pub struct Inject {
-	title: String,
-	source: PathBuf,
-	offset: crate::offset::Offset,
+	pub title: String,
+	pub source: PathBuf,
+	pub offset: crate::offset::Offset,
 	#[serde(flatten)]
-	inner: InjectType,
+	pub inner: InjectType,
 }
 
 fn default_max_consecutive_downs() -> u32 {

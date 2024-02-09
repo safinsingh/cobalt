@@ -4,6 +4,16 @@
 
 <h1>Injects</h1>
 
-Hello, team {{ base.team_name() }}
+{% for inject in injects %}
+	<div class="inject">
+		<div class="injectText">
+			<h2>{{ inject.title }} <span class="offset">· +{{ inject.offset }}</span></h2>
+			<span class="injectMeta">{{ inject.inner }}</span>
+		</div>
+		<a class="toInject">
+			<button>❯</button>
+		</a>
+	</div>
+{% endfor %}
 
 {% endblock %}

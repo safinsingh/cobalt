@@ -104,7 +104,7 @@ pub async fn get(
 	let team_progressions = db::query::team_progressions(&ctxt.pool).await?;
 
 	Ok(StatusTemplate {
-		base: BaseTemplate::from_params(ctxt.config, auth_session),
+		base: BaseTemplate::from_params(&ctxt, auth_session).await,
 		status_table,
 		vm_service_names,
 		latest_time,

@@ -35,7 +35,7 @@ pub async fn get(
 	Query(NextUrl { next }): Query<NextUrl>,
 ) -> WebResult<impl IntoResponse> {
 	Ok(LoginTemplate {
-		base: BaseTemplate::from_params(ctxt.config, auth_session),
+		base: BaseTemplate::from_params(&ctxt, auth_session).await,
 		messages: messages.into_iter().collect(),
 		next,
 	})

@@ -7,17 +7,23 @@ use std::fmt;
 #[derive(Debug)]
 pub struct Offset(Duration);
 
+impl std::fmt::Display for Offset {
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		let total_seconds = self.0.num_seconds();
+		let hours = total_seconds / 3600;
+		let minutes = (total_seconds % 3600) / 60;
+		let seconds = total_seconds % 60;
+		write!(f, "{:02}:{:02}:{:02}", hours, minutes, seconds)
+	}
+}
+
 impl Serialize for Offset {
 	fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
 	where
 		S: Serializer,
 	{
-		let total_seconds = self.0.num_seconds();
-		let hours = total_seconds / 3600;
-		let minutes = (total_seconds % 3600) / 60;
-		let seconds = total_seconds % 60;
-		let formatted_time = format!("{:02}:{:02}:{:02}", hours, minutes, seconds);
-		serializer.serialize_str(&formatted_time)
+		let string_representation = self.to_string();
+		serializer.serialize_str(&string_representation)
 	}
 }
 

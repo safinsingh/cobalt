@@ -26,7 +26,7 @@ pub async fn check_sla_violation(
 			SELECT COUNT(*)
 			FROM service_checks
 			WHERE
-				team = $1 AND vm = $2 AND service = $3 AND 
+				team = $1 AND vm = $2 AND service = $3 AND
 				time > (SELECT COALESCE(max_time, '1970-01-01') FROM LatestUpTrue)
 	"#,
 	)
