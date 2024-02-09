@@ -41,9 +41,6 @@ web:
 vms:
   earth:
     ip: 1
-    credentials:
-      safin: password
-
     services:
       Wordpress:
         type: http
@@ -64,8 +61,12 @@ vms:
 
       OpenSSH:
         type: ssh
-        login: unix
-        user: safin
+        port: 22
+        auth:
+          method: password
+          user: safin
+          password: meow123
+        command: blah | cat
 
 injects:
   - title: Create SSH server
@@ -77,6 +78,7 @@ injects:
     services:
       CoolSSH:
         type: ssh
+        port: 2202
         login: unix
         user: safin
 

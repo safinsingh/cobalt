@@ -1,7 +1,7 @@
 use regex::Regex;
 use serde::Deserialize;
 use serde_with::{serde_as, DisplayFromStr};
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 
 fn default_http_method() -> reqwest::Method {
 	reqwest::Method::GET
@@ -28,16 +28,28 @@ pub struct Http {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(tag = "login")]
+#[serde(tag = "method")]
 #[serde(rename_all = "snake_case")]
-pub enum SshLoginType {
-	Unix { user: String },
-	Custom { user: String, password: String },
-	None,
+pub enum SshAuthType {
+	Password {
+		user: String,
+		password: String,
+	},
+	Pubkey {
+		user: String,
+		private_key: PathBuf,
+		passphrase: Option<String>,
+	},
+}
+
+fn default_ssh_port() -> u16 {
+	22
 }
 
 #[derive(Deserialize, Debug)]
 pub struct Ssh {
-	#[serde(flatten)]
-	inner: SshLoginType,
+	#[serde(default = "default_ssh_port")]
+	pub port: u16,
+	pub auth: SshAuthType,
+	pub command: Option<String>,
 }

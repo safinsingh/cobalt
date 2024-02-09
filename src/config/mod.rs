@@ -42,7 +42,6 @@ pub enum Service {
 pub struct Vm {
 	pub ip: u8,
 	pub services: HashMap<String, Service>,
-	pub credentials: HashMap<String, String>,
 }
 
 #[derive(Deserialize, Debug)]

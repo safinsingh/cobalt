@@ -11,7 +11,7 @@ use crate::config::Config;
 use dotenvy::dotenv;
 use log::{debug, LevelFilter};
 use std::{fs, sync::Arc};
-use tokio::sync::{Mutex, RwLock};
+use tokio::sync::RwLock;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

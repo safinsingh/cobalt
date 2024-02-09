@@ -8,7 +8,7 @@ use enum_dispatch::enum_dispatch;
 use std::net::Ipv4Addr;
 
 pub(crate) use errors::check_bail;
-pub use errors::{CheckError, CheckResult};
+pub use errors::CheckResult;
 
 #[async_trait]
 #[enum_dispatch(Service)]

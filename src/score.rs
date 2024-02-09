@@ -9,7 +9,7 @@ use log::{debug, info};
 use sqlx::PgPool;
 use std::{collections::HashMap, net::Ipv4Addr, str::FromStr, sync::Arc, time::Duration};
 use tokio::{
-	sync::{Mutex, RwLock},
+	sync::{RwLock},
 	time::timeout,
 };
 
