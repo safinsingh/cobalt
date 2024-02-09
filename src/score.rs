@@ -8,10 +8,7 @@ use chrono::Utc;
 use log::{debug, info};
 use sqlx::PgPool;
 use std::{collections::HashMap, net::Ipv4Addr, str::FromStr, sync::Arc, time::Duration};
-use tokio::{
-	sync::{RwLock},
-	time::timeout,
-};
+use tokio::{sync::RwLock, time::timeout};
 
 async fn score(cfg: Config, pool: PgPool) -> anyhow::Result<()> {
 	for (team_alias, team) in cfg.teams.iter().shuffle() {

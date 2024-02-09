@@ -3,7 +3,7 @@ mod login;
 mod logout;
 mod status;
 
-use crate::{auth::AuthSession, config::Config};
+use crate::{auth::AuthSession, config::Config, time::TimeState};
 use axum::{
 	http::StatusCode,
 	response::{IntoResponse, Response},
@@ -26,13 +26,7 @@ use tower_sessions_sqlx_store::PostgresStore;
 pub struct WebState {
 	config: Config,
 	pool: PgPool,
-	scoring: Arc<RwLock<bool>>,
-}
-
-impl WebState {
-	pub async fn is_running(&self) -> bool {
-		*self.scoring.read().await
-	}
+	time: TimeState,
 }
 
 pub struct WebError(anyhow::Error);
@@ -77,7 +71,7 @@ impl BaseTemplate {
 	}
 }
 
-pub async fn run(config: Config, pool: PgPool, scoring: Arc<RwLock<bool>>) -> anyhow::Result<()> {
+pub async fn run(config: Config, pool: PgPool, time: TimeState) -> anyhow::Result<()> {
 	let session_store = PostgresStore::new(pool.clone());
 	session_store.migrate().await?;
 
@@ -118,7 +112,7 @@ pub async fn run(config: Config, pool: PgPool, scoring: Arc<RwLock<bool>>) -> an
 		.with_state(WebState {
 			config: config.clone(),
 			pool,
-			scoring,
+			time,
 		});
 
 	let listener = TcpListener::bind(("0.0.0.0", config.web.port)).await?;

@@ -5,6 +5,7 @@ mod db;
 mod offset;
 mod score;
 mod shuffle;
+mod time;
 mod web;
 
 use crate::config::Config;
