@@ -57,12 +57,6 @@ where
 	}
 }
 
-impl WebState {
-	fn title(&self) -> String {
-		self.config.round.to_owned()
-	}
-}
-
 pub struct BaseTemplate {
 	pub mock_title: String,
 	pub user: Option<<Config as AuthnBackend>::User>,
@@ -99,10 +93,9 @@ pub async fn run(config: Config, pool: PgPool, scoring: Arc<RwLock<bool>>) -> an
 		.with_expiry(Expiry::OnInactivity(time::Duration::days(1)));
 	let auth_layer = AuthManagerLayerBuilder::new(config.clone(), session_layer).build();
 
-	let listener = TcpListener::bind(("0.0.0.0", config.web.port)).await?;
-
 	let protected = Router::new()
 		.route("/injects", get(injects::get))
+		.route("/injects/:inject_number", get(injects::page::get))
 		.route_layer(login_required!(Config, login_url = "/login"))
 		.route("/login", get(login::get))
 		.route("/login", post(login::post))
@@ -111,15 +104,24 @@ pub async fn run(config: Config, pool: PgPool, scoring: Arc<RwLock<bool>>) -> an
 	let app = Router::new()
 		.route("/", get(status::get))
 		.nest_service("/assets", ServeDir::new("assets"))
+		.nest_service(
+			"/injects/sources",
+			ServeDir::new(&config.inject_meta.source_dir),
+		)
+		.nest_service(
+			"/injects/assets",
+			ServeDir::new(&config.inject_meta.assets_dir),
+		)
 		.merge(protected)
 		.layer(MessagesManagerLayer)
 		.layer(auth_layer)
 		.with_state(WebState {
-			config,
+			config: config.clone(),
 			pool,
 			scoring,
 		});
 
+	let listener = TcpListener::bind(("0.0.0.0", config.web.port)).await?;
 	info!("Web server running on {}", listener.local_addr()?);
 	axum::serve(listener, app)
 		.with_graceful_shutdown(shutdown_signal(deletion_task.abort_handle()))

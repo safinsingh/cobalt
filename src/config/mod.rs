@@ -67,8 +67,9 @@ impl std::fmt::Display for InjectType {
 #[derive(Deserialize, Debug)]
 pub struct Inject {
 	pub title: String,
-	pub source: PathBuf,
+	pub source: String,
 	pub offset: crate::offset::Offset,
+	pub attachments: Option<Vec<String>>,
 	#[serde(flatten)]
 	pub inner: InjectType,
 }
@@ -152,9 +153,14 @@ pub struct Team {
 }
 
 #[derive(Deserialize, Debug)]
+pub struct InjectMeta {
+	pub source_dir: PathBuf,
+	pub assets_dir: PathBuf,
+}
+
+#[derive(Deserialize, Debug)]
 pub struct ConfigInner {
 	pub round: String,
-	pub inject_dir: PathBuf,
 	pub timing: Timing,
 	pub scoring: Scoring,
 	pub web: Web,
@@ -162,6 +168,7 @@ pub struct ConfigInner {
 	pub slas: Slas,
 	// more intuitive naming
 	pub vms: HashMap<String, Vm>,
+	pub inject_meta: InjectMeta,
 	pub injects: Vec<Inject>,
 	pub teams: HashMap<String, Team>,
 }

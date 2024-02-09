@@ -4,13 +4,13 @@
 
 <h1>Injects</h1>
 
-{% for inject in injects %}
+{% for (idx, inject) in injects.iter().enumerate() %}
 	<div class="inject">
 		<div class="injectText">
 			<h2>{{ inject.title }} <span class="offset">· +{{ inject.offset }}</span></h2>
 			<span class="injectMeta">{{ inject.inner }}</span>
 		</div>
-		<a class="toInject">
+		<a class="toInject" href="/injects/{{ idx }}">
 			<button>❯</button>
 		</a>
 	</div>

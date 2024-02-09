@@ -1,5 +1,4 @@
 round: Mock 0.1
-inject_dir: injects/
 
 scoring:
   service_up: 5
@@ -68,19 +67,27 @@ vms:
           password: meow123
         command: blah | cat
 
+inject_meta:
+  source_dir: examples/injects/
+  assets_dir: examples/assets/
+
 injects:
   - title: Create SSH server
-    source: ssh.pdf
+    source: CreateSSHServer.pdf
     offset: 00:30:00
-    type: service
+    attachments:
+      - goat.pub
 
+    type: service
     vm: earth
     services:
       CoolSSH:
         type: ssh
         port: 2202
-        login: unix
-        user: safin
+        auth:
+          method: pubkey
+          user: goat
+          private_key: goat.pem
 
   - title: Respond to IT
     source: it.pdf
