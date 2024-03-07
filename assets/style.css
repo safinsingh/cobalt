@@ -203,3 +203,7 @@ a:visited {
 .downCircle {
 	background-color: #f5b5b5;
 }
+
+.uninitializedCircle {
+	background-color: #d6d6d6;
+}

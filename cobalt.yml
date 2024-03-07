@@ -7,8 +7,8 @@ scoring:
   sla: -10
 
 timing:
-  interval: 30
   jitter: 5
+  interval: 30
   check_timeout: 30
 
 slas:

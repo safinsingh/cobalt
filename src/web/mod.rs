@@ -3,7 +3,11 @@ mod login;
 mod logout;
 mod status;
 
-use crate::{auth::AuthSession, config::Config, time::TimeState};
+use crate::{
+	auth::AuthSession,
+	config::Config,
+	state::{EngineState, Timer},
+};
 use axum::{
 	http::StatusCode,
 	response::{IntoResponse, Response},
@@ -23,10 +27,10 @@ use tower_sessions::{Expiry, SessionManagerLayer};
 use tower_sessions_sqlx_store::PostgresStore;
 
 #[derive(Clone)]
-pub struct WebState {
-	config: Config,
-	pool: PgPool,
-	time: TimeState,
+pub struct WebCtxt {
+	pub config: Config,
+	pub timer: Timer,
+	pub pool: PgPool,
 }
 
 pub struct WebError(anyhow::Error);
@@ -53,25 +57,22 @@ where
 
 pub struct BaseTemplate {
 	pub mock_title: String,
+	pub engine_state: EngineState,
 	pub user: Option<<Config as AuthnBackend>::User>,
-	pub running: bool,
 }
 
-impl BaseTemplate {
-	pub async fn from_params(state: &WebState, auth_session: AuthSession) -> Self {
-		Self {
-			mock_title: state.config.round.clone(),
-			running: state.is_running().await,
-			user: auth_session.user,
+#[macro_export]
+macro_rules! get_base_template {
+	($ctxt:ident, $auth_session:ident) => {
+		crate::web::BaseTemplate {
+			mock_title: $ctxt.config.round.clone(),
+			engine_state: $ctxt.timer.read().await.engine_state,
+			user: $auth_session.user,
 		}
-	}
-
-	fn team_name(&self) -> &str {
-		&self.user.as_ref().unwrap().username
-	}
+	};
 }
 
-pub async fn run(config: Config, pool: PgPool, time: TimeState) -> anyhow::Result<()> {
+pub async fn run(config: Config, timer: Timer, pool: PgPool) -> anyhow::Result<()> {
 	let session_store = PostgresStore::new(pool.clone());
 	session_store.migrate().await?;
 
@@ -109,10 +110,10 @@ pub async fn run(config: Config, pool: PgPool, time: TimeState) -> anyhow::Resul
 		.merge(protected)
 		.layer(MessagesManagerLayer)
 		.layer(auth_layer)
-		.with_state(WebState {
+		.with_state(WebCtxt {
 			config: config.clone(),
 			pool,
-			time,
+			timer,
 		});
 
 	let listener = TcpListener::bind(("0.0.0.0", config.web.port)).await?;

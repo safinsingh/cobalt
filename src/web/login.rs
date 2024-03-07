@@ -1,6 +1,8 @@
 use crate::{
 	auth::{AuthSession, Credentials},
-	web::{BaseTemplate, WebResult, WebState},
+	get_base_template,
+	state::EngineState,
+	web::{BaseTemplate, WebCtxt, WebResult},
 };
 use askama::Template;
 use askama_axum::IntoResponse;
@@ -29,13 +31,13 @@ struct LoginTemplate {
 }
 
 pub async fn get(
-	State(ctxt): State<WebState>,
+	State(ctxt): State<WebCtxt>,
 	auth_session: AuthSession,
 	messages: Messages,
 	Query(NextUrl { next }): Query<NextUrl>,
 ) -> WebResult<impl IntoResponse> {
 	Ok(LoginTemplate {
-		base: BaseTemplate::from_params(&ctxt, auth_session).await,
+		base: get_base_template!(ctxt, auth_session),
 		messages: messages.into_iter().collect(),
 		next,
 	})

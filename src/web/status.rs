@@ -1,4 +1,4 @@
-use super::{BaseTemplate, WebResult, WebState};
+use super::{BaseTemplate, WebCtxt, WebResult};
 use crate::{
 	auth::AuthSession,
 	db::{
@@ -6,6 +6,8 @@ use crate::{
 		models::ServiceGatheredInfo,
 		query::{LatestTeamSnapshot, TeamProgression},
 	},
+	get_base_template,
+	state::EngineState,
 };
 use askama_axum::Template;
 use axum::{extract::State, response::IntoResponse};
@@ -91,7 +93,7 @@ fn extract_team_table(snapshots: &[LatestTeamSnapshot]) -> Vec<TeamInfo> {
 }
 
 pub async fn get(
-	State(ctxt): State<WebState>,
+	State(ctxt): State<WebCtxt>,
 	auth_session: AuthSession,
 ) -> WebResult<impl IntoResponse> {
 	let teams = db::query::latest_service_statuses(&ctxt.pool).await?;
@@ -104,7 +106,7 @@ pub async fn get(
 	let team_progressions = db::query::team_progressions(&ctxt.pool).await?;
 
 	Ok(StatusTemplate {
-		base: BaseTemplate::from_params(&ctxt, auth_session).await,
+		base: get_base_template!(ctxt, auth_session),
 		status_table,
 		vm_service_names,
 		latest_time,

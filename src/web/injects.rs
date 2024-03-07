@@ -1,7 +1,9 @@
 use crate::{
 	auth::AuthSession,
 	config::Inject,
-	web::{BaseTemplate, WebState},
+	get_base_template,
+	state::EngineState,
+	web::{BaseTemplate, WebCtxt},
 };
 use askama::Template;
 use axum::{extract::State, http::StatusCode, response::IntoResponse};
@@ -13,13 +15,13 @@ struct InjectsTemplate<'a> {
 	injects: &'a [Inject],
 }
 
-pub async fn get(State(ctxt): State<WebState>, auth_session: AuthSession) -> impl IntoResponse {
+pub async fn get(State(ctxt): State<WebCtxt>, auth_session: AuthSession) -> impl IntoResponse {
 	if auth_session.user.is_some() {
 		let injects = &ctxt.config.injects;
 
 		InjectsTemplate {
 			injects,
-			base: BaseTemplate::from_params(&ctxt, auth_session).await,
+			base: get_base_template!(ctxt, auth_session),
 		}
 		.into_response()
 	} else {
@@ -39,7 +41,7 @@ pub mod page {
 	}
 
 	pub async fn get(
-		State(ctxt): State<WebState>,
+		State(ctxt): State<WebCtxt>,
 		auth_session: AuthSession,
 		Path(inject_number): Path<usize>,
 	) -> impl IntoResponse {
@@ -49,8 +51,8 @@ pub mod page {
 				StatusCode::INTERNAL_SERVER_ERROR.into_response()
 			} else {
 				InjectPageTemplate {
-					base: BaseTemplate::from_params(&ctxt, auth_session).await,
 					inject: &ctxt.config.injects[inject_number],
+					base: get_base_template!(ctxt, auth_session),
 				}
 				.into_response()
 			}

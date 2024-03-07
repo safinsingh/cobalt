@@ -15,7 +15,16 @@
     <div id="content">
 		<div id="navbar-lip"></div>
 		<div id="navbar">
-			<span class="mockTitle">{{ base.mock_title }} {% if base.running %}<div class="upCircle" title="scoring started"></div>{% else %}<div class="downCircle" title="scoring stopped"></div>{% endif %}</span>
+			<span class="mockTitle">{{ base.mock_title }} 
+				{% match base.engine_state %}
+					{% when EngineState::Started with {time_started, time_remaining_at_start} %}
+						<div class="upCircle" title="scoring started"></div>
+					{% when EngineState::Stopped with {time_remaining} %}
+						<div class="downCircle" title="scoring stopped"></div>
+					{% when EngineState::Uninitialized %}
+						<div class="uninitializedCircle" title="scoring uninitialized"></div>
+				{% endmatch %}
+			</span>
 			<a href="/">status</a>
 			{% if base.user.is_some() %}
 				<a href="/injects">injects</a>

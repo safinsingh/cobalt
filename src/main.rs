@@ -5,10 +5,11 @@ mod db;
 mod offset;
 mod score;
 mod shuffle;
-mod time;
+mod state;
 mod web;
 
 use crate::config::Config;
+use crate::state::Timer;
 use dotenvy::dotenv;
 use log::{debug, LevelFilter};
 use std::{fs, sync::Arc};
@@ -23,8 +24,8 @@ async fn main() -> anyhow::Result<()> {
 	let cfg = Config::from_str(&raw)?;
 	debug!("Parsed configuration: {:#?}", cfg);
 	let pool = db::establish_pg_conn().await?;
+	let timer = Timer::default();
 
-	let running = Arc::new(RwLock::new(false));
-	tokio::spawn(score::run(cfg.clone(), pool.clone(), running.clone()));
-	web::run(cfg, pool, running).await
+	tokio::spawn(score::run(cfg.clone(), timer.clone(), pool.clone()));
+	web::run(cfg, timer, pool).await
 }

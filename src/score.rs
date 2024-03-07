@@ -3,6 +3,7 @@ use crate::{
 	config::Config,
 	db::{self, models::ServiceGatheredInfo},
 	shuffle::ShuffleIterExt,
+	state::{EngineState, Timer},
 };
 use chrono::Utc;
 use log::{debug, info};
@@ -93,9 +94,9 @@ async fn score(cfg: Config, pool: PgPool) -> anyhow::Result<()> {
 	Ok(())
 }
 
-pub async fn run(cfg: Config, pool: PgPool, running: Arc<RwLock<bool>>) -> anyhow::Result<()> {
+pub async fn run(cfg: Config, timer: Timer, pool: PgPool) -> anyhow::Result<()> {
 	loop {
-		if *running.read().await {
+		if matches!(timer.read().await.engine_state, EngineState::Started { .. }) {
 			score(cfg.clone(), pool.clone()).await?;
 			tokio::time::sleep(cfg.timing.jittered_interval()).await;
 		}
