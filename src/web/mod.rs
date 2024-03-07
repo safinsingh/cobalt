@@ -4,7 +4,6 @@ mod logout;
 mod status;
 
 use crate::{
-	auth::AuthSession,
 	config::Config,
 	state::{EngineState, Timer},
 };
@@ -20,8 +19,8 @@ use axum_login::{
 use axum_messages::MessagesManagerLayer;
 use log::info;
 use sqlx::PgPool;
-use std::sync::Arc;
-use tokio::{net::TcpListener, signal, sync::RwLock, task::AbortHandle};
+
+use tokio::{net::TcpListener, signal, task::AbortHandle};
 use tower_http::services::ServeDir;
 use tower_sessions::{Expiry, SessionManagerLayer};
 use tower_sessions_sqlx_store::PostgresStore;
@@ -64,7 +63,7 @@ pub struct BaseTemplate {
 #[macro_export]
 macro_rules! get_base_template {
 	($ctxt:ident, $auth_session:ident) => {
-		crate::web::BaseTemplate {
+		$crate::web::BaseTemplate {
 			mock_title: $ctxt.config.round.clone(),
 			engine_state: $ctxt.timer.read().await.engine_state,
 			user: $auth_session.user,

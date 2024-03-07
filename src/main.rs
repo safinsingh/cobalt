@@ -8,12 +8,10 @@ mod shuffle;
 mod state;
 mod web;
 
-use crate::config::Config;
-use crate::state::Timer;
+use crate::{config::Config, state::Timer};
 use dotenvy::dotenv;
 use log::{debug, LevelFilter};
-use std::{fs, sync::Arc};
-use tokio::sync::RwLock;
+use std::fs;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

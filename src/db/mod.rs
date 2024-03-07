@@ -4,9 +4,10 @@ pub mod query;
 
 use anyhow::Context;
 use log::LevelFilter;
-use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
-use sqlx::ConnectOptions;
-use sqlx::PgPool;
+use sqlx::{
+	postgres::{PgConnectOptions, PgPoolOptions},
+	ConnectOptions, PgPool,
+};
 use std::env;
 use url::Url;
 

@@ -30,7 +30,7 @@ impl Check for Ssh {
 
 		if let Some(command) = &self.command {
 			let mut channel = sess.channel_session()?;
-			channel.exec(&command)?;
+			channel.exec(command)?;
 			let mut res = String::new();
 			channel.read_to_string(&mut res)?;
 			channel.wait_close()?;

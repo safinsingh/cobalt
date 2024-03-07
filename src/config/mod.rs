@@ -129,7 +129,7 @@ pub struct Timing {
 
 impl Timing {
 	pub fn jittered_interval(&self) -> std::time::Duration {
-		let offset = rand::thread_rng().gen_range(-1 * self.jitter as i32..self.jitter as i32);
+		let offset = rand::thread_rng().gen_range(-(self.jitter as i32)..self.jitter as i32);
 		std::time::Duration::from_secs(self.interval as u64 + offset as u64)
 	}
 }
