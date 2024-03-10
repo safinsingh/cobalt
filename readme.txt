@@ -14,3 +14,5 @@ todo:
 - login
 - web nav
 - event loop
+
+...please use https://github.com/dbaseqp/SUGMAASE instead :(
